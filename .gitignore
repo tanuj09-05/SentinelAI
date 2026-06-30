@@ -1,0 +1,34 @@
+# Python
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# Database
+*.db
+
+# Generated Reports
+reports/*.pdf
+
+# Generated Images
+static/alerts/*
+!static/alerts/.gitkeep
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Recordings
+recordings/*
+!recordings/.gitkeep
+
+# Processed Files
+processed/*
+!processed/.gitkeep
+
+# VS Code
+.vscode/
+
+# JetBrains
+.idea/

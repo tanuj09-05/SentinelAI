@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Alerts</h1>
+
+<section class="search-section">
+    <form method="get" action="{{ url_for('alerts') }}">
+        <div style="display:grid; grid-template-columns: 2fr 1fr auto; gap:12px; align-items:center;">
+            <input
+                type="text"
+                name="q"
+                placeholder="🔍 Search alerts by event or date..."
+                value="{{ keyword }}"
+            >
+
+            <select name="event_type">
+                <option value="All">All Event Types</option>
+                {% for event_type in event_types %}
+                    <option value="{{ event_type }}" {% if selected_event_type == event_type %}selected{% endif %}>
+                        {{ event_type }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="primary-btn" style="border:none; cursor:pointer;">
+                Filter
+            </button>
+        </div>
+    </form>
+</section>
+
+<section class="gallery">
+    <h2>Full Alerts Table</h2>
+
+    <p style="margin-bottom:18px; color:var(--muted);">
+        Showing {{ alerts|length }} of {{ total_alerts }} alerts.
+    </p>
+
+    {% if alerts %}
+    <div style="overflow-x:auto;">
+        <table class="alerts-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Event Type</th>
+                    <th>Timestamp</th>
+                    <th>Evidence</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for alert in alerts %}
+                <tr>
+                    <td>{{ alert[0] }}</td>
+                    <td>{{ alert[1] }}</td>
+                    <td>{{ alert[2] }}</td>
+                    <td>
+                        {% if alert[3] %}
+                        <a href="/{{ alert[3] }}" target="_blank">View</a>
+                        {% else %}
+                        N/A
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination-bar">
+        {% if page > 1 %}
+        <a class="pagination-link" href="{{ url_for('alerts', q=keyword, event_type=selected_event_type, page=page - 1) }}">Previous</a>
+        {% endif %}
+
+        <span class="pagination-info">Page {{ page }} of {{ total_pages }}</span>
+
+        {% if page < total_pages %}
+        <a class="pagination-link" href="{{ url_for('alerts', q=keyword, event_type=selected_event_type, page=page + 1) }}">Next</a>
+        {% endif %}
+    </div>
+    {% else %}
+    <p>No alerts found for the selected filters.</p>
+    {% endif %}
+</section>
+
+{% endblock %}

@@ -1,0 +1,301 @@
+
+/*
+  Theme colors used across the landing page.
+  Keeping these here makes it easier to adjust the look later.
+*/
+:root {
+    --bg: #050816;
+    --bg2: #0f172a;
+    --primary: #7c3aed;
+    --accent: #06b6d4;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+}
+
+/*
+  Reset browser defaults and use a consistent font.
+*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+}
+
+/*
+  Smooth scrolling makes navigation links feel nicer.
+*/
+html {
+    scroll-behavior: smooth;
+}
+
+/*
+  Base page background and text color.
+*/
+body {
+    background: radial-gradient(circle at top, #111827 0%, #050816 55%, #020617 100%);
+    color: var(--text);
+    overflow-x: hidden;
+}
+
+/*
+  This pseudo-element creates the animated glowing background.
+*/
+body::before {
+    content: "";
+    position: fixed;
+    inset: -20%;
+    background:
+        radial-gradient(circle, #7c3aed55 0%, transparent 35%),
+        radial-gradient(circle at 80% 30%, #06b6d444 0%, transparent 30%),
+        radial-gradient(circle at 30% 80%, #8b5cf644 0%, transparent 35%);
+    filter: blur(80px);
+    animation: aurora 12s ease-in-out infinite alternate;
+    z-index: -2;
+}
+
+@keyframes aurora {
+    from {
+        transform: translate(-40px, -20px) scale(1);
+    }
+
+    to {
+        transform: translate(40px, 30px) scale(1.15);
+    }
+}
+
+/*
+  Fixed top navigation bar.
+*/
+.navbar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    padding: 22px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    backdrop-filter: blur(18px);
+    background: rgba(5, 8, 22, 0.45);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 999;
+}
+
+.brand {
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: 3px;
+}
+
+nav {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+}
+
+nav a {
+    color: var(--muted);
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+nav a:hover {
+    color: white;
+}
+
+.cta {
+    border: 1px solid var(--primary);
+    padding: 12px 22px;
+    border-radius: 999px;
+}
+
+/*
+  Hero section layout.
+  The page is split into text on the left and a visual card on the right.
+*/
+.hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: center;
+    padding: 120px 7%;
+    gap: 60px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: rgba(124, 58, 237, 0.15);
+    border: 1px solid rgba(124, 58, 237, 0.35);
+    color: #d8b4fe;
+    margin-bottom: 25px;
+}
+
+.hero h1 {
+    font-size: clamp(3rem, 7vw, 6rem);
+    line-height: 1;
+    margin-bottom: 24px;
+}
+
+.hero p {
+    color: var(--muted);
+    max-width: 620px;
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+/*
+  Button row under the hero text.
+*/
+.buttons {
+    display: flex;
+    gap: 18px;
+    margin-top: 40px;
+    flex-wrap: wrap;
+}
+
+.primary-btn,
+.secondary-btn {
+    text-decoration: none;
+    padding: 16px 28px;
+    border-radius: 999px;
+    transition: 0.35s;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, var(--primary), #9333ea);
+    color: white;
+    box-shadow: 0 10px 35px rgba(124, 58, 237, 0.4);
+}
+
+.primary-btn:hover {
+    transform: translateY(-4px);
+}
+
+.secondary-btn {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: white;
+}
+
+/*
+  Glass-style information card on the right side of the hero.
+*/
+.glass-card {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 28px;
+    padding: 35px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.glass-card h3 {
+    margin-bottom: 24px;
+}
+
+.status.online {
+    color: #22c55e;
+    margin-bottom: 25px;
+}
+
+.metric {
+    display: flex;
+    justify-content: space-between;
+    margin: 18px 0;
+    color: var(--muted);
+}
+
+.metric strong {
+    color: white;
+}
+
+/*
+  Main content sections below the hero.
+*/
+.section {
+    padding: 100px 7%;
+}
+
+.section h2 {
+    font-size: 2.6rem;
+    margin-bottom: 24px;
+}
+
+.section p {
+    color: var(--muted);
+    max-width: 780px;
+    line-height: 1.8;
+}
+
+/*
+  Grid of feature cards.
+*/
+.feature-grid {
+    margin-top: 50px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+}
+
+.feature {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 28px;
+    border-radius: 22px;
+    transition: 0.35s;
+}
+
+.feature:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent);
+}
+
+.feature h3 {
+    margin-bottom: 12px;
+}
+
+.feature p {
+    color: var(--muted);
+}
+
+/*
+  Small pill-like tags for the technology stack.
+*/
+.stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 40px;
+}
+
+.stack span {
+    padding: 14px 20px;
+    background: #111827;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+}
+
+footer {
+    padding: 60px;
+    text-align: center;
+    color: var(--muted);
+}
+
+/*
+  Responsive layout for tablets and phones.
+*/
+@media (max-width: 900px) {
+    .hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    nav {
+        display: none;
+    }
+
+    .buttons {
+        justify-content: center;
+    }
+}

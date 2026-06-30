@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Evidence Gallery</h1>
+
+<section class="search-section">
+    <form method="get" action="{{ url_for('evidence') }}">
+        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:12px; align-items:center;">
+            <input
+                type="text"
+                name="q"
+                placeholder="🔍 Search by event or date..."
+                value="{{ keyword }}"
+            >
+
+            <select name="event_type">
+                <option value="All">All Event Types</option>
+                {% for event_type in event_types %}
+                    <option value="{{ event_type }}" {% if selected_event_type == event_type %}selected{% endif %}>
+                        {{ event_type }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <select name="sort">
+                <option value="id" {% if selected_sort == 'id' %}selected{% endif %}>Sort by ID</option>
+                <option value="timestamp" {% if selected_sort == 'timestamp' %}selected{% endif %}>Sort by Time</option>
+                <option value="event_type" {% if selected_sort == 'event_type' %}selected{% endif %}>Sort by Event</option>
+            </select>
+
+            <select name="order">
+                <option value="desc" {% if selected_order == 'desc' %}selected{% endif %}>Newest First</option>
+                <option value="asc" {% if selected_order == 'asc' %}selected{% endif %}>Oldest First</option>
+            </select>
+
+            <button type="submit" class="primary-btn" style="border:none; cursor:pointer;">
+                Apply
+            </button>
+        </div>
+    </form>
+</section>
+
+<section class="gallery">
+    <h2>Stored Evidence</h2>
+
+    {% if events %}
+    <div class="gallery-grid" id="gallery-grid">
+        {% for event in events %}
+        <div class="evidence">
+            <img src="/{{ event[3] }}" alt="Evidence">
+
+            <div class="body">
+                <h3>Event #{{ event[0] }}</h3>
+                <p>{{ event[1] }}</p>
+                <small>{{ event[2] }}</small>
+
+                <br><br>
+
+                <div class="evidence-buttons">
+                    <a href="/{{ event[3] }}" target="_blank">View</a>
+                    <a href="/{{ event[3] }}" download>Download</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No matching evidence found.</p>
+    {% endif %}
+</section>
+
+{% endblock %}

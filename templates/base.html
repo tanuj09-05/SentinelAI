@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>SentinelAI</title>
+
+    <link rel="stylesheet"
+          href="/static/css/dashboard.css">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">
+
+        <h2>SENTINELAI</h2>
+
+        <p>Command Center</p>
+
+    </div>
+
+    <ul class="menu">
+
+        <li><a href="/dashboard">Dashboard</a></li>
+
+        <li><a href="/live">Live Feed</a></li>
+
+        <li><a href="/evidence">Evidence</a></li>
+
+        <li><a href="/analytics">Analytics</a></li>
+
+        <li><a href="/alerts">Alerts</a></li>
+
+        <li><a href="/settings">Settings</a></li>
+
+    </ul>
+
+</div>
+
+
+<div class="main">
+
+{% block content %}
+
+{% endblock %}
+
+</div>
+
+<script src="/static/js/dashboard.js"></script>
+
+</body>
+
+</html>

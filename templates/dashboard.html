@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentinelAI Command Center</title>
+
+    <!-- Google Font used by the dashboard styling. -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+
+<body>
+
+    <!-- Left sidebar navigation panel. -->
+    <div class="sidebar">
+
+        <div class="logo">
+            <h2>SENTINELAI</h2>
+            <p>Command Center</p>
+        </div>
+
+        <ul class="menu">
+            <li class="active">Dashboard</li>
+            <li>Live Feed</li>
+            <li>Evidence</li>
+            <li>Analytics</li>
+            <li>Alerts</li>
+            <li>Settings</li>
+        </ul>
+
+    </div>
+
+    <!-- Main dashboard content area. -->
+    <div class="main">
+
+        <header>
+
+            <h1>AI Security Command Center</h1>
+
+            <!-- Shows online status and live time. -->
+            <div class="status">
+                <span class="dot"></span>
+
+                System Online
+
+                <span
+                    id="live-clock"
+                    style="margin-left:15px;font-weight:bold;">
+                </span>
+
+            </div>
+
+        </header>
+
+        <!-- Summary cards at the top of the dashboard. -->
+        <section class="cards">
+
+    <div class="card">
+        <h3>Total Events</h3>
+        <h2 id="total-events">{{ total_events }}</h2>
+    </div>
+
+    <div class="card">
+        <h3>Threat Level</h3>
+        <h2 id="threat-level">SAFE</h2>
+    </div>
+
+    <div class="card">
+        <h3>People Detected</h3>
+        <h2 id="people-count">0</h2>
+    </div>
+
+    <div class="card">
+        <h3>Camera Status</h3>
+        <h2 id="camera-status">OFFLINE</h2>
+    </div>
+
+</section>
+
+        <!-- Main content area with live view and alerts. -->
+        <section class="content">
+
+            <div class="camera">
+
+                <h2>Live Monitoring</h2>
+
+                <div class="camera-box">
+
+    <img
+        src="{{ url_for('video_feed') }}"
+        alt="Live Camera Feed"
+        style="width:100%; border-radius:12px;">
+
+</div>
+
+            </div>
+
+            <div class="alerts">
+
+                <h2>Recent Alerts</h2>
+
+                {% for event in events[:6] %}
+
+                <div class="alert-card">
+
+                    <strong>Event #{{ event[0] }}</strong>
+
+                    <p>{{ event[1] }}</p>
+
+                    <small>{{ event[2] }}</small>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+        <!-- Search Section -->
+<section class="search-section">
+
+    <input
+        type="text"
+        id="search-box"
+        placeholder="🔍 Search by event or date..."
+    >
+
+</section>
+
+        <!-- Evidence images stored by the detection system. -->
+        <section class="gallery">
+
+            <h2>Evidence Gallery</h2>
+
+            <div class="gallery-grid" id="gallery-grid">
+
+                {% for event in events %}
+
+                <div class="evidence">
+
+                    <img src="/{{ event[3] }}" alt="Evidence">
+
+                    <div class="body">
+
+                        <h3>Event #{{ event[0] }}</h3>
+
+                        <p>{{ event[1] }}</p>
+
+                        <small>{{ event[2] }}</small>
+
+                        <br><br>
+
+                        <div class="evidence-buttons">
+
+    <a href="/{{ event[3] }}" target="_blank">
+        View
+    </a>
+
+    <a href="/{{ event[3] }}" download>
+        Download
+    </a>
+
+</div>
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        </section>
+
+        <!-- Analytics Section -->
+<section class="analytics">
+
+    <h2>Security Analytics</h2>
+
+    <div class="chart-container">
+
+        <canvas id="alertsChart"></canvas>
+
+    </div>
+
+</section>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>
