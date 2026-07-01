@@ -86,11 +86,7 @@ def generate_frames():
 
         SYSTEM_STATE["intrusion"] = intrusion_detected
 
-        SYSTEM_STATE["threat"] = calculate_threat(
-    person_count,
-    intrusion_detected
-)
-
+        SYSTEM_STATE["threat"] = latest_threat_level
         SYSTEM_STATE["camera"] = "ONLINE"
 
         if intrusion_detected:
@@ -283,34 +279,8 @@ def api_search():
 
     return jsonify(rows)
 
-#@app.route("/generate-report")
-#def generate_pdf_report():
 
-#    global latest_people_count
-#    global latest_threat_level
 
-#    filename = "reports/security_report.pdf"
-
-#    connection = sqlite3.connect(DATABASE_PATH)
-#    cursor = connection.cursor()
-
-#    cursor.execute("SELECT COUNT(*) FROM events")
-#    total_events = cursor.fetchone()[0]
-
-#    connection.close()
-
-#    generate_report(
-#    filename=filename,
-#    total_events=total_events,
-#    threat_level=latest_threat_level,
-#    people_detected=latest_people_count,
-#    camera_status="ONLINE"
-#)
-
-#    return send_file(
-#        filename,
-#        as_attachment=True
-#    )
 
 @app.route("/analytics")
 def analytics():
