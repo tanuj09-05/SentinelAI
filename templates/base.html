@@ -1,61 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SentinelAI Command Center - {% block title %}{% endblock %}</title>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+    <!-- Google Font used by the dashboard styling. -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    
+    <!-- Lucide Icons (Premium Feather alternative) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-    <title>SentinelAI</title>
-
-    <link rel="stylesheet"
-          href="/static/css/dashboard.css">
-
+    {% block extra_head %}{% endblock %}
 </head>
-
 <body>
 
-<div class="sidebar">
+    <!-- Left sidebar navigation panel. -->
+    <div class="sidebar">
 
-    <div class="logo">
+        <div class="logo">
+            <h2>SENTINELAI</h2>
+            <p>Command Center</p>
+        </div>
 
-        <h2>SENTINELAI</h2>
-
-        <p>Command Center</p>
+        <ul class="menu">
+            {% set active_page = active_page | default('dashboard') %}
+            <li class="{% if active_page == 'dashboard' %}active{% endif %}">
+                <a href="{{ url_for('dashboard') }}">
+                    <i data-lucide="layout-dashboard"></i> Dashboard
+                </a>
+            </li>
+            <li class="{% if active_page == 'live' %}active{% endif %}">
+                <a href="{{ url_for('live') }}">
+                    <i data-lucide="cctv"></i> Live Feed
+                </a>
+            </li>
+            <li class="{% if active_page == 'evidence' %}active{% endif %}">
+                <a href="{{ url_for('evidence') }}">
+                    <i data-lucide="images"></i> Evidence
+                </a>
+            </li>
+            <li class="{% if active_page == 'analytics' %}active{% endif %}">
+                <a href="{{ url_for('analytics') }}">
+                    <i data-lucide="bar-chart-2"></i> Analytics
+                </a>
+            </li>
+            <li class="{% if active_page == 'alerts' %}active{% endif %}">
+                <a href="{{ url_for('alerts') }}">
+                    <i data-lucide="alert-triangle"></i> Alerts
+                </a>
+            </li>
+            <li class="{% if active_page == 'settings' %}active{% endif %}">
+                <a href="{{ url_for('settings.settings') }}">
+                    <i data-lucide="settings"></i> Settings
+                </a>
+            </li>
+            
+            {% if current_user.is_authenticated %}
+            <li class="user-profile-menu">
+                <div class="user-info">
+                    <i data-lucide="user-circle"></i>
+                    <div>
+                        <small>Logged in as</small>
+                        <strong>{{ current_user.name }}</strong>
+                    </div>
+                </div>
+                <a href="{{ url_for('auth.logout') }}" class="logout-link">
+                    <i data-lucide="log-out"></i> Logout
+                </a>
+            </li>
+            {% endif %}
+        </ul>
 
     </div>
 
-    <ul class="menu">
+    <!-- Main dashboard content area. -->
+    <div class="main">
 
-        <li><a href="/dashboard">Dashboard</a></li>
+        <!-- Top Navbar -->
+        <header class="top-navbar">
+            <div class="header-title">
+                <h1>{% block header_title %}AI Security Command Center{% endblock %}</h1>
+            </div>
 
-        <li><a href="/live">Live Feed</a></li>
+            <div class="header-actions">
+                <!-- Shows online status and live time. -->
+                <div class="status-badge" id="global-system-status">
+                    <span class="dot"></span>
+                    System Online
+                </div>
 
-        <li><a href="/evidence">Evidence</a></li>
+                <div class="live-clock-badge">
+                    <i data-lucide="clock"></i>
+                    <span id="live-clock" style="font-weight:600;"></span>
+                </div>
+                
+                <div class="notification-bell">
+                    <i data-lucide="bell"></i>
+                    <span class="badge" id="notification-badge" style="display:none;">0</span>
+                    <!-- Dropdown for alerts -->
+                    <div class="notification-dropdown" id="notification-dropdown">
+                        <h4>Recent Alerts</h4>
+                        <div id="notification-list">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-icon">
+                    <i data-lucide="user"></i>
+                </div>
+            </div>
+        </header>
 
-        <li><a href="/analytics">Analytics</a></li>
+        <div class="content-wrapper">
+            {% block content %}{% endblock %}
+        </div>
 
-        <li><a href="/alerts">Alerts</a></li>
+    </div>
 
-        <li><a href="/settings">Settings</a></li>
-
-    </ul>
-
-</div>
-
-
-<div class="main">
-
-{% block content %}
-
-{% endblock %}
-
-</div>
-
-<script src="/static/js/dashboard.js"></script>
+    <!-- Initialize Lucide Icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+    
+    {% block scripts %}{% endblock %}
 
 </body>
-
 </html>

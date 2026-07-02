@@ -1,195 +1,198 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SentinelAI Command Center</title>
+{% extends "base.html" %}
+{% set active_page = "dashboard" %}
 
-    <!-- Google Font used by the dashboard styling. -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/dashboard.css">
-</head>
+{% block title %}Dashboard{% endblock %}
+{% block header_title %}Overview Dashboard{% endblock %}
 
-<body>
+{% block content %}
 
-    <!-- Left sidebar navigation panel. -->
-    <div class="sidebar">
+<!-- Summary cards at the top of the dashboard. -->
+<section class="cards">
+    <div class="card glass-card">
+        <div class="card-header">
+            <h3>Total Events</h3>
+            <i data-lucide="shield-alert" class="icon-muted"></i>
+        </div>
+        <h2 id="total-events">{{ total_events }}</h2>
+        <small class="trend positive"><i data-lucide="trending-up"></i> Live Tracking</small>
+    </div>
 
-        <div class="logo">
-            <h2>SENTINELAI</h2>
-            <p>Command Center</p>
+    <div class="card glass-card">
+        <div class="card-header">
+            <h3>Threat Level</h3>
+            <i data-lucide="shield" class="icon-success" id="threat-icon"></i>
+        </div>
+        <h2 id="threat-level" class="text-success">SAFE</h2>
+        <small class="trend">Monitoring 24/7</small>
+    </div>
+
+    <div class="card glass-card">
+        <div class="card-header">
+            <h3>People Detected</h3>
+            <i data-lucide="users" class="icon-muted"></i>
+        </div>
+        <h2 id="people-count">0</h2>
+        <small class="trend">Unique active tracked persons</small>
+    </div>
+
+    <div class="card glass-card">
+        <div class="card-header">
+            <h3>Camera Status</h3>
+            <i data-lucide="video" class="icon-muted"></i>
+        </div>
+        <h2 id="camera-status" class="text-muted">OFFLINE</h2>
+        <small class="trend" id="camera-resolution">1920x1080</small>
+    </div>
+</section>
+
+<!-- System Status & Metrics (New Section) -->
+<section class="system-health">
+    <div class="metrics-panel glass-card">
+        <h3>System Metrics</h3>
+        <div class="metrics-grid">
+            <div class="metric">
+                <span class="metric-label">CPU Usage</span>
+                <div class="progress-bar"><div class="progress-fill cpu-fill" style="width: 0%;"></div></div>
+                <span class="metric-value" id="cpu-value">0%</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">RAM Usage</span>
+                <div class="progress-bar"><div class="progress-fill ram-fill" style="width: 0%;"></div></div>
+                <span class="metric-value" id="ram-value">0%</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">App Latency</span>
+                <div class="progress-bar"><div class="progress-fill latency-fill" style="width: 0%;"></div></div>
+                <span class="metric-value" id="latency-value">0ms</span>
+            </div>
+            <div class="metric">
+                <span class="metric-label">Camera FPS</span>
+                <div class="progress-bar"><div class="progress-fill fps-fill" style="width: 0%;"></div></div>
+                <span class="metric-value" id="fps-value">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="status-panel glass-card">
+        <h3>Service Health</h3>
+        <div class="status-grid">
+            <div class="status-item"><div class="indicator online"></div> AI Engine</div>
+            <div class="status-item"><div class="indicator online"></div> Camera Service</div>
+            <div class="status-item"><div class="indicator online"></div> Database</div>
+            <div class="status-item"><div class="indicator online"></div> Authentication</div>
+            <div class="status-item"><div class="indicator warning"></div> Email Service</div>
+            <div class="status-item"><div class="indicator online"></div> Analytics Engine</div>
+        </div>
+    </div>
+</section>
+
+<!-- Main content area with live view and alerts. -->
+<section class="content split-view">
+
+    <div class="camera-section glass-card">
+        <div class="section-header">
+            <h2>Live Monitoring</h2>
+            <div class="camera-selector">
+                <select id="camera-select" class="modern-select">
+                    <option value="1">Cam 01: Main Entrance</option>
+                    <option value="2">Cam 02: Back Alley (Offline)</option>
+                    <option value="3">Cam 03: Lobby (Offline)</option>
+                    <option value="4">Cam 04: Server Room (Offline)</option>
+                </select>
+            </div>
         </div>
 
-        <ul class="menu">
-            <li class="active">Dashboard</li>
-            <li>Live Feed</li>
-            <li>Evidence</li>
-            <li>Analytics</li>
-            <li>Alerts</li>
-            <li>Settings</li>
-        </ul>
-
-    </div>
-
-    <!-- Main dashboard content area. -->
-    <div class="main">
-
-        <header>
-
-            <h1>AI Security Command Center</h1>
-
-            <!-- Shows online status and live time. -->
-            <div class="status">
-                <span class="dot"></span>
-
-                System Online
-
-                <span
-                    id="live-clock"
-                    style="margin-left:15px;font-weight:bold;">
-                </span>
-
+        <div class="camera-box" id="camera-box-container">
+            <div class="camera-overlay">
+                <div class="overlay-top">
+                    <span class="badge-live"><span class="rec-dot"></span>LIVE</span>
+                    <span class="badge-cam">CAM 01</span>
+                </div>
+                <div class="overlay-bottom">
+                    <span id="overlay-fps">FPS: --</span>
+                    <span id="overlay-res">1920x1080</span>
+                </div>
             </div>
-
-        </header>
-
-        <!-- Summary cards at the top of the dashboard. -->
-        <section class="cards">
-
-    <div class="card">
-        <h3>Total Events</h3>
-        <h2 id="total-events">{{ total_events }}</h2>
-    </div>
-
-    <div class="card">
-        <h3>Threat Level</h3>
-        <h2 id="threat-level">SAFE</h2>
-    </div>
-
-    <div class="card">
-        <h3>People Detected</h3>
-        <h2 id="people-count">0</h2>
-    </div>
-
-    <div class="card">
-        <h3>Camera Status</h3>
-        <h2 id="camera-status">OFFLINE</h2>
-    </div>
-
-</section>
-
-        <!-- Main content area with live view and alerts. -->
-        <section class="content">
-
-            <div class="camera">
-
-                <h2>Live Monitoring</h2>
-
-                <div class="camera-box">
-
-    <img
-        src="{{ url_for('video_feed') }}"
-        alt="Live Camera Feed"
-        style="width:100%; border-radius:12px;">
-
-</div>
-
+            <img src="{{ url_for('video_feed') }}" alt="Live Camera Feed" class="live-stream-img" id="main-camera-img">
+            <div class="offline-placeholder" id="offline-placeholder" style="display:none;">
+                <i data-lucide="wifi-off"></i>
+                <p>Camera Offline</p>
             </div>
+        </div>
+    </div>
 
-            <div class="alerts">
-
-                <h2>Recent Alerts</h2>
-
-                {% for event in events[:6] %}
-
-                <div class="alert-card">
-
+    <div class="alerts-section glass-card">
+        <div class="section-header">
+            <h2>Recent Alerts</h2>
+            <a href="/alerts" class="view-all">View All</a>
+        </div>
+        
+        <div class="alerts-list" id="recent-alerts-list">
+            {% for event in events[:6] %}
+            <div class="alert-item severity-high">
+                <div class="alert-icon"><i data-lucide="user-x"></i></div>
+                <div class="alert-content">
                     <strong>Event #{{ event[0] }}</strong>
-
                     <p>{{ event[1] }}</p>
-
-                    <small>{{ event[2] }}</small>
-
+                    <small class="time-ago" data-timestamp="{{ event[2] }}">{{ event[2] }}</small>
                 </div>
-
-                {% endfor %}
-
             </div>
-
-        </section>
-
-        <!-- Search Section -->
-<section class="search-section">
-
-    <input
-        type="text"
-        id="search-box"
-        placeholder="🔍 Search by event or date..."
-    >
-
-</section>
-
-        <!-- Evidence images stored by the detection system. -->
-        <section class="gallery">
-
-            <h2>Evidence Gallery</h2>
-
-            <div class="gallery-grid" id="gallery-grid">
-
-                {% for event in events %}
-
-                <div class="evidence">
-
-                    <img src="/{{ event[3] }}" alt="Evidence">
-
-                    <div class="body">
-
-                        <h3>Event #{{ event[0] }}</h3>
-
-                        <p>{{ event[1] }}</p>
-
-                        <small>{{ event[2] }}</small>
-
-                        <br><br>
-
-                        <div class="evidence-buttons">
-
-    <a href="/{{ event[3] }}" target="_blank">
-        View
-    </a>
-
-    <a href="/{{ event[3] }}" download>
-        Download
-    </a>
-
-</div>
-
-                    </div>
-
-                </div>
-
-                {% endfor %}
-
+            {% endfor %}
+            {% if not events %}
+            <div class="empty-state">
+                <i data-lucide="check-circle"></i>
+                <p>No recent alerts.</p>
             </div>
-
-        </section>
-
-        <!-- Analytics Section -->
-<section class="analytics">
-
-    <h2>Security Analytics</h2>
-
-    <div class="chart-container">
-
-        <canvas id="alertsChart"></canvas>
-
+            {% endif %}
+        </div>
     </div>
 
 </section>
 
+<!-- Search Section -->
+<section class="search-section glass-card" style="padding: 15px 20px;">
+    <div class="search-wrapper">
+        <i data-lucide="search" class="search-icon"></i>
+        <input type="text" id="search-box" class="modern-input" placeholder="Search evidence by event ID or date...">
+    </div>
+</section>
+
+<!-- Evidence Gallery -->
+<section class="gallery glass-card">
+    <div class="section-header">
+        <h2>Evidence Gallery</h2>
+        <a href="/evidence" class="btn-primary-outline"><i data-lucide="folder-open"></i> Full Archive</a>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="/static/js/dashboard.js"></script>
-</body>
-</html>
+    <div class="gallery-grid" id="gallery-grid">
+        {% for event in events[:8] %}
+        <div class="evidence-card">
+            <div class="evidence-img-wrapper">
+                <img src="/{{ event[3] }}" alt="Evidence">
+                <div class="evidence-overlay">
+                    <button class="btn-icon view-btn" data-src="/{{ event[3] }}"><i data-lucide="eye"></i></button>
+                    <a href="/{{ event[3] }}" download class="btn-icon"><i data-lucide="download"></i></a>
+                </div>
+            </div>
+            <div class="evidence-body">
+                <h4>Event #{{ event[0] }}</h4>
+                <p><i data-lucide="tag"></i> {{ event[1] }}</p>
+                <small><i data-lucide="clock"></i> {{ event[2] }}</small>
+            </div>
+        </div>
+        {% endfor %}
+        {% if not events %}
+        <div class="empty-state">
+            <i data-lucide="image-off"></i>
+            <p>No evidence found.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/static/js/dashboard.js"></script>
+{% endblock %}

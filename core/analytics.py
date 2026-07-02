@@ -1,27 +1,43 @@
 import sqlite3
+
 from config import DATABASE_PATH
 
 
 def get_dashboard_stats():
+    """
+    Connects to the SQLite database and retrieves basic statistics for the dashboard.
 
-    connection = sqlite3.connect(DATABASE_PATH)
-    cursor = connection.cursor()
+    This function counts the total number of security events (alerts) ever recorded,
+    as well as the number of events that occurred today.
 
-    # Total alerts
-    cursor.execute("SELECT COUNT(*) FROM events")
-    total_alerts = cursor.fetchone()[0]
+    Returns:
+        dict: A dictionary containing 'total_alerts' and 'today_alerts' as integers.
+    """
 
-    # Today's alerts
-    cursor.execute("""
-        SELECT COUNT(*)
-        FROM events
-        WHERE DATE(timestamp)=DATE('now')
-    """)
-    today_alerts = cursor.fetchone()[0]
+    # Open a connection to the SQLite database using a context manager (the 'with' statement).
+    # This ensures the connection is automatically closed when we are done, preventing memory leaks.
+    with sqlite3.connect(DATABASE_PATH) as database_connection:
 
-    connection.close()
+        # Create a cursor object which allows us to execute SQL commands
+        database_cursor = database_connection.cursor()
 
-    return {
-        "total_alerts": total_alerts,
-        "today_alerts": today_alerts
-    }
+        # --- 1. Get the Total Alerts ---
+        # Execute a SQL query to count every single row in the 'events' table
+        database_cursor.execute("SELECT COUNT(*) FROM events")
+
+        # fetchone() returns a tuple (e.g., (50,)), so we get the first item [0] to extract the integer 50.
+        total_alerts_count = database_cursor.fetchone()[0]
+
+        # --- 2. Get Today's Alerts ---
+        # Execute a SQL query to count rows where the 'timestamp' column matches today's date
+        database_cursor.execute("""
+            SELECT COUNT(*)
+            FROM events
+            WHERE DATE(timestamp) = DATE('now')
+        """)
+
+        # Extract the integer from the result tuple
+        today_alerts_count = database_cursor.fetchone()[0]
+
+    # Return the collected statistics as a dictionary so the frontend can easily read them
+    return {"total_alerts": total_alerts_count, "today_alerts": today_alerts_count}

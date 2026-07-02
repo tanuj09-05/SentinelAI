@@ -1,20 +1,27 @@
 {% extends "base.html" %}
+{% set active_page = "alerts" %}
+
+{% block title %}Alerts{% endblock %}
+{% block header_title %}Alerts & Notifications{% endblock %}
 
 {% block content %}
 
-<h1>Alerts</h1>
-
-<section class="search-section">
+<section class="search-section glass-card" style="padding: 20px; margin-bottom: 25px;">
     <form method="get" action="{{ url_for('alerts') }}">
-        <div style="display:grid; grid-template-columns: 2fr 1fr auto; gap:12px; align-items:center;">
-            <input
-                type="text"
-                name="q"
-                placeholder="🔍 Search alerts by event or date..."
-                value="{{ keyword }}"
-            >
+        <div style="display:grid; grid-template-columns: 2fr 1fr auto; gap:15px; align-items:center;">
+            
+            <div class="search-wrapper">
+                <i data-lucide="search" class="search-icon"></i>
+                <input
+                    type="text"
+                    name="q"
+                    class="modern-input"
+                    placeholder="Search alerts by event or date..."
+                    value="{{ keyword }}"
+                >
+            </div>
 
-            <select name="event_type">
+            <select name="event_type" class="modern-select">
                 <option value="All">All Event Types</option>
                 {% for event_type in event_types %}
                     <option value="{{ event_type }}" {% if selected_event_type == event_type %}selected{% endif %}>
@@ -23,42 +30,50 @@
                 {% endfor %}
             </select>
 
-            <button type="submit" class="primary-btn" style="border:none; cursor:pointer;">
-                Filter
+            <button type="submit" class="btn-primary-outline" style="height: 100%; border:none; background: var(--primary); color: white; border-radius: 12px; padding: 0 25px; cursor: pointer; transition: 0.3s;">
+                <i data-lucide="filter"></i> Filter
             </button>
         </div>
     </form>
 </section>
 
-<section class="gallery">
-    <h2>Full Alerts Table</h2>
-
-    <p style="margin-bottom:18px; color:var(--muted);">
-        Showing {{ alerts|length }} of {{ total_alerts }} alerts.
-    </p>
+<section class="gallery glass-card" style="margin-top: 0; padding: 25px;">
+    <div class="section-header" style="padding: 0 0 20px 0;">
+        <h2>Full Alerts Registry</h2>
+        <span class="text-muted">Showing {{ alerts|length }} of {{ total_alerts }} alerts.</span>
+    </div>
 
     {% if alerts %}
     <div style="overflow-x:auto;">
-        <table class="alerts-table">
+        <table class="alerts-table" style="width: 100%; text-align: left; border-collapse: collapse;">
             <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Event Type</th>
-                    <th>Timestamp</th>
-                    <th>Evidence</th>
+                <tr style="border-bottom: 2px solid var(--border); color: var(--muted); font-size: 13px; text-transform: uppercase;">
+                    <th style="padding: 15px 10px;">ID</th>
+                    <th style="padding: 15px 10px;">Severity</th>
+                    <th style="padding: 15px 10px;">Event Type</th>
+                    <th style="padding: 15px 10px;">Timestamp</th>
+                    <th style="padding: 15px 10px;">Evidence</th>
                 </tr>
             </thead>
             <tbody>
                 {% for alert in alerts %}
-                <tr>
-                    <td>{{ alert[0] }}</td>
-                    <td>{{ alert[1] }}</td>
-                    <td>{{ alert[2] }}</td>
-                    <td>
-                        {% if alert[3] %}
-                        <a href="/{{ alert[3] }}" target="_blank">View</a>
+                {% set is_high = "Intrusion" in alert[1] %}
+                <tr style="border-bottom: 1px solid var(--border); transition: 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 15px 10px; font-weight: 600;">#{{ alert[0] }}</td>
+                    <td style="padding: 15px 10px;">
+                        {% if is_high %}
+                        <span style="background: rgba(239, 68, 68, 0.15); color: var(--danger); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;"><i data-lucide="alert-triangle" style="width:12px; height:12px;"></i> HIGH</span>
                         {% else %}
-                        N/A
+                        <span style="background: rgba(34, 211, 238, 0.15); color: var(--cyan); padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;"><i data-lucide="info" style="width:12px; height:12px;"></i> INFO</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 15px 10px; color: {% if is_high %}var(--danger){% else %}var(--text){% endif %};">{{ alert[1] }}</td>
+                    <td style="padding: 15px 10px; color: var(--muted);"><i data-lucide="clock" style="width: 14px; height: 14px; margin-right: 4px; vertical-align: middle;"></i>{{ alert[2] }}</td>
+                    <td style="padding: 15px 10px;">
+                        {% if alert[3] %}
+                        <a href="/{{ alert[3] }}" target="_blank" style="color: var(--primary); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 4px;"><i data-lucide="external-link" style="width:14px; height:14px;"></i> View</a>
+                        {% else %}
+                        <span class="text-muted">N/A</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -67,19 +82,26 @@
         </table>
     </div>
 
-    <div class="pagination-bar">
+    <div class="pagination-bar" style="display: flex; justify-content: space-between; align-items: center; margin-top: 25px;">
         {% if page > 1 %}
-        <a class="pagination-link" href="{{ url_for('alerts', q=keyword, event_type=selected_event_type, page=page - 1) }}">Previous</a>
+        <a class="btn-primary-outline" style="background: var(--panel); border: 1px solid var(--border); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px;" href="{{ url_for('alerts', q=keyword, event_type=selected_event_type, page=page - 1) }}"><i data-lucide="chevron-left" style="width:16px; vertical-align:middle;"></i> Previous</a>
+        {% else %}
+        <div></div>
         {% endif %}
 
-        <span class="pagination-info">Page {{ page }} of {{ total_pages }}</span>
+        <span class="pagination-info text-muted">Page {{ page }} of {{ total_pages }}</span>
 
         {% if page < total_pages %}
-        <a class="pagination-link" href="{{ url_for('alerts', q=keyword, event_type=selected_event_type, page=page + 1) }}">Next</a>
+        <a class="btn-primary-outline" style="background: var(--primary); color: white; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 14px;" href="{{ url_for('alerts', q=keyword, event_type=selected_event_type, page=page + 1) }}">Next <i data-lucide="chevron-right" style="width:16px; vertical-align:middle;"></i></a>
+        {% else %}
+        <div></div>
         {% endif %}
     </div>
     {% else %}
-    <p>No alerts found for the selected filters.</p>
+    <div class="empty-state" style="padding: 40px 0;">
+        <i data-lucide="check-circle" style="width: 48px; height: 48px; color: var(--success); opacity: 0.5;"></i>
+        <p>No alerts found for the selected filters.</p>
+    </div>
     {% endif %}
 </section>
 

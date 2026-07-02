@@ -1,5 +1,5 @@
-from datetime import datetime
 import os
+from datetime import datetime
 
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
@@ -34,7 +34,10 @@ def generate_report(
     # ===========================
 
     elements.append(
-        Paragraph("<b><font size=24 color='#2c3e50'>SentinelAI Security Report</font></b>", styles["Title"])
+        Paragraph(
+            "<b><font size=24 color='#2c3e50'>SentinelAI Security Report</font></b>",
+            styles["Title"],
+        )
     )
 
     elements.append(Spacer(1, 15))
@@ -54,48 +57,29 @@ def generate_report(
     # System Status
     # ===========================
 
-    elements.append(
-        Paragraph("<b>System Status</b>", styles["Heading2"])
-    )
+    elements.append(Paragraph("<b>System Status</b>", styles["Heading2"]))
 
     table_data = [
-
         ["Camera Status", camera_status],
-
         ["Threat Level", threat_level],
-
         ["People Detected", str(people_detected)],
-
         ["Total Events", str(total_events)],
-
     ]
 
     table = Table(table_data, colWidths=[180, 180])
 
     table.setStyle(
-
         TableStyle(
-
             [
-
                 ("BACKGROUND", (0, 0), (-1, 0), colors.lightgrey),
-
                 ("GRID", (0, 0), (-1, -1), 1, colors.grey),
-
                 ("BACKGROUND", (0, 0), (0, -1), colors.whitesmoke),
-
                 ("BOTTOMPADDING", (0, 0), (-1, -1), 10),
-
                 ("TOPPADDING", (0, 0), (-1, -1), 10),
-
                 ("FONTNAME", (0, 0), (-1, -1), "Helvetica"),
-
                 ("FONTSIZE", (0, 0), (-1, -1), 11),
-
             ]
-
         )
-
     )
 
     elements.append(table)
@@ -108,13 +92,9 @@ def generate_report(
 
     if latest_evidence_image and os.path.exists(latest_evidence_image):
 
-        elements.append(
-            Paragraph("<b>Latest Evidence</b>", styles["Heading2"])
-        )
+        elements.append(Paragraph("<b>Latest Evidence</b>", styles["Heading2"]))
 
-        elements.append(
-            Image(latest_evidence_image, width=350, height=220)
-        )
+        elements.append(Image(latest_evidence_image, width=350, height=220))
 
         elements.append(Spacer(1, 20))
 
@@ -122,9 +102,7 @@ def generate_report(
     # Summary
     # ===========================
 
-    elements.append(
-        Paragraph("<b>Summary</b>", styles["Heading2"])
-    )
+    elements.append(Paragraph("<b>Summary</b>", styles["Heading2"]))
 
     summary = f"""
     SentinelAI detected <b>{total_events}</b> total events.
@@ -134,9 +112,7 @@ def generate_report(
     People currently detected: <b>{people_detected}</b>.
     """
 
-    elements.append(
-        Paragraph(summary, styles["BodyText"])
-    )
+    elements.append(Paragraph(summary, styles["BodyText"]))
 
     elements.append(Spacer(1, 30))
 
@@ -146,20 +122,30 @@ def generate_report(
 
     if recent_alerts:
 
-        elements.append(
-            Paragraph("<b>Recent Alerts</b>", styles["Heading2"])
-        )
+        elements.append(Paragraph("<b>Recent Alerts</b>", styles["Heading2"]))
 
-        alerts_table_data = [["ID", "Event Type", "Timestamp"]]
+        alerts_table_data = [["ID", "Event Type", "Name", "Timestamp"]]
 
         for alert in recent_alerts:
-            alerts_table_data.append([
-                str(alert[0]),
-                str(alert[1]),
-                str(alert[2]),
-            ])
+            # recent_alerts has (id, event_type, timestamp, image_path, track_id, entry_time, exit_time, duration, recognized_name, is_known)
+            alert_id = str(alert[0])
+            event_type = str(alert[1])
+            timestamp = str(alert[2])
+            track_id = (
+                f"#{alert[4]}" if len(alert) > 4 and alert[4] is not None else "N/A"
+            )
+            rec_name = str(alert[8]) if len(alert) > 8 and alert[8] else "Unknown"
 
-        alerts_table = Table(alerts_table_data, colWidths=[60, 180, 160])
+            alerts_table_data.append(
+                [
+                    alert_id,
+                    f"{event_type} ({track_id})",
+                    rec_name,
+                    timestamp,
+                ]
+            )
+
+        alerts_table = Table(alerts_table_data, colWidths=[50, 150, 100, 100])
         alerts_table.setStyle(
             TableStyle(
                 [

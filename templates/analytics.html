@@ -1,57 +1,118 @@
 {% extends "base.html" %}
+{% set active_page = "analytics" %}
+
+{% block title %}Analytics{% endblock %}
+{% block header_title %}Security Analytics{% endblock %}
 
 {% block content %}
 
-<h1>Analytics</h1>
-
+<!-- Summary cards -->
 <section class="cards">
-    <div class="card">
-        <h3>Total Events</h3>
+    <div class="card glass-card">
+        <div class="card-header">
+            <h3>Total Events</h3>
+            <i data-lucide="bar-chart-2" class="icon-muted"></i>
+        </div>
         <h2>{{ total_events }}</h2>
     </div>
 
-    <div class="card">
-        <h3>People Detected</h3>
+    <div class="card glass-card">
+        <div class="card-header">
+            <h3>People Detected</h3>
+            <i data-lucide="users" class="icon-muted"></i>
+        </div>
         <h2>{{ people_detected }}</h2>
     </div>
 
-    <div class="card">
-        <h3>Threat Level</h3>
+    <div class="card glass-card">
+        <div class="card-header">
+            <h3>Threat Level</h3>
+            <i data-lucide="shield" class="icon-muted"></i>
+        </div>
         <h2>{{ threat_level }}</h2>
     </div>
 
-    <div class="card">
-        <h3>Camera Status</h3>
+    <div class="card glass-card">
+        <div class="card-header">
+            <h3>Camera Status</h3>
+            <i data-lucide="video" class="icon-muted"></i>
+        </div>
         <h2>{{ camera_status }}</h2>
     </div>
+
+    <div class="card glass-card">
+        <div class="card-header">
+            <h3>Unique Visitors</h3>
+            <i data-lucide="user-check" class="icon-muted"></i>
+        </div>
+        <h2>{{ unique_visitors }}</h2>
+    </div>
+
+    <div class="card glass-card">
+        <div class="card-header">
+            <h3>Max Simultaneous</h3>
+            <i data-lucide="users" class="icon-muted"></i>
+        </div>
+        <h2>{{ max_simultaneous }}</h2>
+    </div>
+
+    <div class="card glass-card">
+        <div class="card-header">
+            <h3>Avg Dwell Time</h3>
+            <i data-lucide="clock" class="icon-muted"></i>
+        </div>
+        <h2>{{ avg_dwell }}s</h2>
+    </div>
+
+    <div class="card glass-card">
+        <div class="card-header">
+            <h3>Loitering Events</h3>
+            <i data-lucide="alert-circle" class="icon-muted"></i>
+        </div>
+        <h2>{{ loitering_events }}</h2>
+    </div>
 </section>
 
+<!-- Charts -->
 <section class="gallery">
-    <h2>Security Charts</h2>
+    <div class="section-header glass-card" style="margin-bottom: 20px;">
+        <h2>Security Trends & Intelligence</h2>
+    </div>
 
     <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:20px;">
-        <div class="chart-container" style="height:320px;">
-            <h3>Daily Alerts</h3>
-            <canvas id="dailyAlertsChart"></canvas>
+        <div class="glass-card" style="padding: 20px;">
+            <h3 style="margin-bottom: 15px; font-size: 15px; font-weight: 500;">Daily Alerts</h3>
+            <div class="chart-container" style="height:280px;">
+                <canvas id="dailyAlertsChart"></canvas>
+            </div>
         </div>
 
-        <div class="chart-container" style="height:320px;">
-            <h3>Weekly Alerts</h3>
-            <canvas id="weeklyAlertsChart"></canvas>
+        <div class="glass-card" style="padding: 20px;">
+            <h3 style="margin-bottom: 15px; font-size: 15px; font-weight: 500;">Weekly Alerts</h3>
+            <div class="chart-container" style="height:280px;">
+                <canvas id="weeklyAlertsChart"></canvas>
+            </div>
         </div>
 
-        <div class="chart-container" style="height:320px;">
-            <h3>Monthly Alerts</h3>
-            <canvas id="monthlyAlertsChart"></canvas>
+        <div class="glass-card" style="padding: 20px;">
+            <h3 style="margin-bottom: 15px; font-size: 15px; font-weight: 500;">Monthly Alerts</h3>
+            <div class="chart-container" style="height:280px;">
+                <canvas id="monthlyAlertsChart"></canvas>
+            </div>
         </div>
 
-        <div class="chart-container" style="height:320px;">
-            <h3>Event Type Distribution</h3>
-            <canvas id="eventTypeChart"></canvas>
+        <div class="glass-card" style="padding: 20px;">
+            <h3 style="margin-bottom: 15px; font-size: 15px; font-weight: 500;">Event Type Distribution</h3>
+            <div class="chart-container" style="height:280px;">
+                <canvas id="eventTypeChart"></canvas>
+            </div>
         </div>
     </div>
 </section>
 
+{% endblock %}
+
+{% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const dailyLabels = {{ daily_labels | tojson }};
@@ -63,12 +124,28 @@
     const eventTypeLabels = {{ event_type_labels | tojson }};
     const eventTypeValues = {{ event_type_values | tojson }};
 
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { labels: { color: "#f8fafc" } }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: "rgba(255,255,255,0.05)" },
+                ticks: { color: "#94a3b8" }
+            },
+            x: {
+                grid: { color: "rgba(255,255,255,0.05)" },
+                ticks: { color: "#94a3b8" }
+            }
+        }
+    };
+
     function buildBarChart(canvasId, chartLabels, chartValues, chartLabel) {
         const canvasElement = document.getElementById(canvasId);
-
-        if (!canvasElement) {
-            return;
-        }
+        if (!canvasElement) return;
 
         new Chart(canvasElement, {
             type: "bar",
@@ -77,28 +154,19 @@
                 datasets: [{
                     label: chartLabel,
                     data: chartValues,
-                    borderWidth: 1,
-                    backgroundColor: "rgba(124, 58, 237, 0.7)",
+                    backgroundColor: "rgba(124, 58, 237, 0.5)",
+                    borderColor: "#7c3aed",
+                    borderWidth: 2,
+                    borderRadius: 4
                 }]
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
+            options: commonOptions
         });
     }
 
     function buildDoughnutChart(canvasId, chartLabels, chartValues, chartLabel) {
         const canvasElement = document.getElementById(canvasId);
-
-        if (!canvasElement) {
-            return;
-        }
+        if (!canvasElement) return;
 
         new Chart(canvasElement, {
             type: "doughnut",
@@ -108,17 +176,21 @@
                     label: chartLabel,
                     data: chartValues,
                     backgroundColor: [
-                        "rgba(124, 58, 237, 0.75)",
-                        "rgba(34, 211, 238, 0.75)",
-                        "rgba(34, 197, 94, 0.75)",
-                        "rgba(251, 191, 36, 0.75)",
-                        "rgba(239, 68, 68, 0.75)",
-                    ]
+                        "rgba(124, 58, 237, 0.8)",
+                        "rgba(34, 211, 238, 0.8)",
+                        "rgba(34, 197, 94, 0.8)",
+                        "rgba(251, 191, 36, 0.8)",
+                        "rgba(239, 68, 68, 0.8)",
+                    ],
+                    borderWidth: 0
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: "#f8fafc" }, position: 'bottom' }
+                }
             }
         });
     }
@@ -128,5 +200,4 @@
     buildBarChart("monthlyAlertsChart", monthlyLabels, monthlyValues, "Monthly Alerts");
     buildDoughnutChart("eventTypeChart", eventTypeLabels, eventTypeValues, "Event Types");
 </script>
-
 {% endblock %}

@@ -1,20 +1,27 @@
 {% extends "base.html" %}
+{% set active_page = "evidence" %}
+
+{% block title %}Evidence{% endblock %}
+{% block header_title %}Evidence Archive{% endblock %}
 
 {% block content %}
 
-<h1>Evidence Gallery</h1>
-
-<section class="search-section">
+<section class="search-section glass-card" style="padding: 20px; margin-bottom: 25px;">
     <form method="get" action="{{ url_for('evidence') }}">
-        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:12px; align-items:center;">
-            <input
-                type="text"
-                name="q"
-                placeholder="🔍 Search by event or date..."
-                value="{{ keyword }}"
-            >
+        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:15px; align-items:center;">
+            
+            <div class="search-wrapper">
+                <i data-lucide="search" class="search-icon"></i>
+                <input
+                    type="text"
+                    name="q"
+                    class="modern-input"
+                    placeholder="Search by event or date..."
+                    value="{{ keyword }}"
+                >
+            </div>
 
-            <select name="event_type">
+            <select name="event_type" class="modern-select">
                 <option value="All">All Event Types</option>
                 {% for event_type in event_types %}
                     <option value="{{ event_type }}" {% if selected_event_type == event_type %}selected{% endif %}>
@@ -23,50 +30,54 @@
                 {% endfor %}
             </select>
 
-            <select name="sort">
+            <select name="sort" class="modern-select">
                 <option value="id" {% if selected_sort == 'id' %}selected{% endif %}>Sort by ID</option>
                 <option value="timestamp" {% if selected_sort == 'timestamp' %}selected{% endif %}>Sort by Time</option>
                 <option value="event_type" {% if selected_sort == 'event_type' %}selected{% endif %}>Sort by Event</option>
             </select>
 
-            <select name="order">
+            <select name="order" class="modern-select">
                 <option value="desc" {% if selected_order == 'desc' %}selected{% endif %}>Newest First</option>
                 <option value="asc" {% if selected_order == 'asc' %}selected{% endif %}>Oldest First</option>
             </select>
 
-            <button type="submit" class="primary-btn" style="border:none; cursor:pointer;">
-                Apply
+            <button type="submit" class="btn-primary-outline" style="height: 100%; border:none; background: var(--primary); color: white; border-radius: 12px; padding: 0 20px; cursor: pointer; transition: 0.3s;">
+                <i data-lucide="filter"></i> Apply
             </button>
         </div>
     </form>
 </section>
 
-<section class="gallery">
-    <h2>Stored Evidence</h2>
+<section class="gallery glass-card" style="margin-top: 0;">
+    <div class="section-header">
+        <h2>Stored Evidence</h2>
+        <span class="text-muted">{{ events|length }} records found</span>
+    </div>
 
     {% if events %}
     <div class="gallery-grid" id="gallery-grid">
         {% for event in events %}
-        <div class="evidence">
-            <img src="/{{ event[3] }}" alt="Evidence">
-
-            <div class="body">
-                <h3>Event #{{ event[0] }}</h3>
-                <p>{{ event[1] }}</p>
-                <small>{{ event[2] }}</small>
-
-                <br><br>
-
-                <div class="evidence-buttons">
-                    <a href="/{{ event[3] }}" target="_blank">View</a>
-                    <a href="/{{ event[3] }}" download>Download</a>
+        <div class="evidence-card">
+            <div class="evidence-img-wrapper">
+                <img src="/{{ event[3] }}" alt="Evidence">
+                <div class="evidence-overlay">
+                    <a href="/{{ event[3] }}" target="_blank" class="btn-icon"><i data-lucide="eye"></i></a>
+                    <a href="/{{ event[3] }}" download class="btn-icon"><i data-lucide="download"></i></a>
                 </div>
+            </div>
+            <div class="evidence-body">
+                <h4>Event #{{ event[0] }}</h4>
+                <p><i data-lucide="tag"></i> {{ event[1] }}</p>
+                <small><i data-lucide="clock"></i> {{ event[2] }}</small>
             </div>
         </div>
         {% endfor %}
     </div>
     {% else %}
-    <p>No matching evidence found.</p>
+    <div class="empty-state">
+        <i data-lucide="image-off"></i>
+        <p>No matching evidence found.</p>
+    </div>
     {% endif %}
 </section>
 

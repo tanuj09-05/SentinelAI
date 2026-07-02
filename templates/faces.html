@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+{% set active_page = "faces" %}
+
+{% block title %}Face Management{% endblock %}
+{% block header_title %}Face Management Database{% endblock %}
+
+{% block content %}
+
+<section class="cards">
+    <div class="card glass-card">
+        <div class="card-header">
+            <h3>Registered Faces</h3>
+            <i data-lucide="users" class="icon-muted"></i>
+        </div>
+        <h2>{{ faces|length }}</h2>
+        <small class="trend">Total profiles in system</small>
+    </div>
+    
+    <div class="card glass-card" style="display:flex; align-items:center; justify-content:center; padding: 30px;">
+        <button class="btn-primary" onclick="openAddFaceModal()"><i data-lucide="user-plus"></i> Add New Face</button>
+    </div>
+</section>
+
+<!-- Face Gallery -->
+<section class="gallery glass-card" style="margin-top:20px;">
+    <div class="section-header">
+        <h2>Known Personnel</h2>
+        <div class="search-wrapper" style="width:300px;">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="face-search" class="modern-input" placeholder="Search by name..." onkeyup="filterFaces()">
+        </div>
+    </div>
+
+    <div class="gallery-grid" id="faces-grid">
+        {% for face in faces %}
+        <div class="evidence-card face-card" data-name="{{ face[1]|lower }}">
+            <div class="evidence-img-wrapper" style="height:250px; background:#1e293b;">
+                <img src="/{{ face[2] }}" alt="Face Image" style="object-fit:cover; height:100%; width:100%;">
+                <div class="evidence-overlay">
+                    <button class="btn-icon view-btn" data-src="/{{ face[2] }}"><i data-lucide="eye"></i></button>
+                    <button class="btn-icon" style="color:var(--danger)" onclick="deleteFace({{ face[0] }}, '{{ face[1] }}')"><i data-lucide="trash-2"></i></button>
+                </div>
+            </div>
+            <div class="evidence-body">
+                <h4>{{ face[1] }}</h4>
+                <p><i data-lucide="hash" style="width:14px;"></i> ID: {{ face[0] }}</p>
+                <small><i data-lucide="calendar"></i> {{ face[3] }}</small>
+            </div>
+        </div>
+        {% endfor %}
+        {% if not faces %}
+        <div class="empty-state">
+            <i data-lucide="user-x" style="width:48px;height:48px;"></i>
+            <p>No faces registered yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Add Face Modal -->
+<div id="addFaceModal" class="modal">
+    <div class="modal-content glass-card" style="max-width: 500px;">
+        <span class="close-btn" onclick="closeAddFaceModal()">&times;</span>
+        <h2>Register New Face</h2>
+        <p class="text-muted" style="margin-bottom: 20px;">Upload a clear photo of the person's face.</p>
+        
+        <form id="addFaceForm" onsubmit="submitFace(event)">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="faceName" class="modern-input" required placeholder="e.g. John Doe">
+            </div>
+            
+            <div class="form-group">
+                <label>Photo</label>
+                <input type="file" id="faceFile" class="modern-input" accept="image/*" required>
+            </div>
+            
+            <div class="form-actions" style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+                <button type="button" class="btn-secondary" onclick="closeAddFaceModal()">Cancel</button>
+                <button type="submit" class="btn-primary" id="submitFaceBtn"><i data-lucide="upload-cloud"></i> Register Face</button>
+            </div>
+            <div id="uploadStatus" style="margin-top:15px; text-align:center;"></div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openAddFaceModal() {
+        document.getElementById('addFaceModal').style.display = 'flex';
+    }
+    function closeAddFaceModal() {
+        document.getElementById('addFaceModal').style.display = 'none';
+        document.getElementById('addFaceForm').reset();
+        document.getElementById('uploadStatus').innerText = '';
+    }
+    
+    function filterFaces() {
+        const query = document.getElementById('face-search').value.toLowerCase();
+        const cards = document.querySelectorAll('.face-card');
+        cards.forEach(card => {
+            if (card.dataset.name.includes(query)) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    async function submitFace(e) {
+        e.preventDefault();
+        const btn = document.getElementById('submitFaceBtn');
+        const status = document.getElementById('uploadStatus');
+        
+        const fileInput = document.getElementById('faceFile');
+        const nameInput = document.getElementById('faceName');
+        
+        if (!fileInput.files[0]) return;
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader" class="spinner"></i> Uploading...';
+        lucide.createIcons();
+        status.innerHTML = '';
+        
+        const formData = new FormData();
+        formData.append('file', fileInput.files[0]);
+        formData.append('name', nameInput.value);
+        
+        try {
+            const resp = await fetch('/api/faces/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await resp.json();
+            
+            if (data.success) {
+                status.innerHTML = `<span class="text-success">${data.message} Reloading...</span>`;
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                status.innerHTML = `<span class="text-danger">${data.message}</span>`;
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="upload-cloud"></i> Register Face';
+                lucide.createIcons();
+            }
+        } catch (err) {
+            status.innerHTML = `<span class="text-danger">Error uploading face.</span>`;
+            btn.disabled = false;
+        }
+    }
+    
+    async function deleteFace(id, name) {
+        if (!confirm(`Are you sure you want to delete ${name}'s face profile?`)) return;
+        
+        try {
+            const resp = await fetch(`/api/faces/${id}`, { method: 'DELETE' });
+            const data = await resp.json();
+            if (data.success) {
+                location.reload();
+            } else {
+                alert("Failed to delete face: " + data.message);
+            }
+        } catch (e) {
+            alert("Error connecting to server.");
+        }
+    }
+</script>
+
+{% endblock %}

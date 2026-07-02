@@ -1,366 +1,321 @@
-// SentinelAI Dashboard JavaScript
-// This file adds small visual effects to the dashboard page.
+// Enterprise SentinelAI Dashboard Logic
 
-
-// Update the live clock shown in the dashboard.
+// Initialize real-time clock
 function updateLiveClock() {
-
-    // Create a Date object for the current moment.
-    const currentTime = new Date();
-
-    // These options tell JavaScript how to format the clock string.
-    const timeFormatOptions = {
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit"
-    };
-
-    // Find the clock element in the page.
-    const clockElement = document.getElementById("live-clock");
-
-    // Only update the clock if the element exists.
-    if (clockElement) {
-        clockElement.innerHTML = currentTime.toLocaleTimeString([], timeFormatOptions);
+    const clock = document.getElementById("live-clock");
+    if (clock) {
+        clock.innerText = new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit", second: "2-digit"});
     }
-
 }
-
-// Refresh the clock every second and also show it immediately.
 setInterval(updateLiveClock, 1000);
 updateLiveClock();
 
-
-// Animate dashboard cards when the page loads.
-const dashboardCards = document.querySelectorAll(".card,.camera,.alerts,.gallery,.evidence");
-
-dashboardCards.forEach((cardElement, index) => {
-
-    // Start each card slightly transparent and lower on the page.
-    cardElement.style.opacity = "0";
-    cardElement.style.transform = "translateY(30px)";
-
-    // Stagger the animation so the cards appear one after another.
-    setTimeout(() => {
-
-        cardElement.style.transition = ".7s ease";
-        cardElement.style.opacity = "1";
-        cardElement.style.transform = "translateY(0px)";
-
-    }, index * 120);
-
-});
-
-
-// Add a glow effect when the user hovers over sidebar menu items.
-document.querySelectorAll(".menu li").forEach((menuItem) => {
-
-    menuItem.addEventListener("mouseenter", () => {
-        menuItem.style.boxShadow = "0 0 20px rgba(124,58,237,.4)";
-    });
-
-    menuItem.addEventListener("mouseleave", () => {
-        menuItem.style.boxShadow = "none";
-    });
-
-});
-
-
-// Zoom evidence images a little when the user hovers over them.
-document.querySelectorAll(".evidence img").forEach((evidenceImage) => {
-
-    evidenceImage.addEventListener("mouseenter", () => {
-        evidenceImage.style.transform = "scale(1.08)";
-        evidenceImage.style.transition = ".4s";
-    });
-
-    evidenceImage.addEventListener("mouseleave", () => {
-        evidenceImage.style.transform = "scale(1)";
-    });
-
-});
-
-
-// Make the camera panel gently float up and down.
-const cameraPanel = document.querySelector(".camera");
-
-if (cameraPanel) {
-
-    let animationAngle = 0;
-
-    setInterval(() => {
-
-        animationAngle += 0.02;
-
-        cameraPanel.style.transform = `translateY(${Math.sin(animationAngle) * 5}px)`;
-
-    }, 30);
-
-}
-
-
-// Create a soft glow that follows the mouse pointer.
-const mouseGlow = document.createElement("div");
-
-mouseGlow.style.position = "fixed";
-mouseGlow.style.width = "280px";
-mouseGlow.style.height = "280px";
-mouseGlow.style.borderRadius = "50%";
-mouseGlow.style.pointerEvents = "none";
-mouseGlow.style.background = "radial-gradient(circle, rgba(124,58,237,.15), transparent 70%)";
-mouseGlow.style.filter = "blur(18px)";
-mouseGlow.style.transform = "translate(-50%,-50%)";
-mouseGlow.style.zIndex = "-1";
-
-document.body.appendChild(mouseGlow);
-
-document.addEventListener("mousemove", (event) => {
-    mouseGlow.style.left = event.clientX + "px";
-    mouseGlow.style.top = event.clientY + "px";
-});
-
-
-// Make LOW threat values gently blink to draw attention.
-const threatValueElements = document.querySelectorAll(".card h2");
-
-threatValueElements.forEach((threatElement) => {
-
-    if (threatElement.innerHTML.trim() === "LOW") {
-
-        setInterval(() => {
-
-            threatElement.style.color =
-                threatElement.style.color === "#22c55e"
-                    ? "#ffffff"
-                    : "#22c55e";
-
-        }, 800);
-
-    }
-
-});
-
-
-// Add a pulsing animation to the online status dot.
-const onlineDot = document.querySelector(".dot");
-
-if (onlineDot) {
-
-    setInterval(() => {
-
-        onlineDot.animate([
-            {
-                transform: "scale(1)"
-            },
-            {
-                transform: "scale(1.6)"
-            },
-            {
-                transform: "scale(1)"
-            }
-        ], {
-
-            duration: 1000
-
-        });
-
-    }, 1200);
-
-}
-
-
-// Animate numeric counters from 0 up to their final value.
-function animateCounter(counterElement) {
-
-    // Read the text inside the element and convert it into a number.
-    const targetValue = Number(counterElement.innerText);
-
-    // If the text is not a number, do nothing.
-    if (isNaN(targetValue)) return;
-
-    let currentValue = 0;
-
-    // Split the movement into small steps so the number grows smoothly.
-    const stepSize = Math.ceil(targetValue / 40);
-
-    const counterTimer = setInterval(() => {
-
-        currentValue += stepSize;
-
-        if (currentValue >= targetValue) {
-            counterElement.innerText = targetValue;
-            clearInterval(counterTimer);
+// Animate numeric counters smoothly
+function animateCounter(el, target) {
+    if (isNaN(target)) return;
+    let current = parseInt(el.innerText) || 0;
+    if (current === target) return;
+    
+    const diff = target - current;
+    const step = Math.ceil(Math.abs(diff) / 10) * Math.sign(diff);
+    
+    const timer = setInterval(() => {
+        current += step;
+        if ((step > 0 && current >= target) || (step < 0 && current <= target)) {
+            el.innerText = target;
+            clearInterval(timer);
+        } else {
+            el.innerText = current;
         }
-        else {
-            counterElement.innerText = currentValue;
-        }
-
-    }, 25);
-
+    }, 40);
 }
 
-document.querySelectorAll(".card h2").forEach((counterElement) => {
-    animateCounter(counterElement);
-});
+let currentTotalEvents = -1;
+let systemChartInstance = null;
+let previousCameraStatus = "offline";
 
-
-// Print a branded message in the browser console.
-console.log(
-    "%cSentinelAI Command Center",
-    "font-size:26px;color:#7c3aed;font-weight:bold;"
-);
-
-console.log(
-    "AI Surveillance & Security Analytics Platform"
-);
+// Fetch core status and trigger dashboard updates
 async function updateLiveStatus() {
-
     try {
+        const resp = await fetch("/api/status");
+        if (!resp.ok) return;
+        const data = await resp.json();
 
-        const response = await fetch("/api/status");
-        const data = await response.json();
-
-        const peopleCountElement = document.getElementById("people-count");
-        const threatLevelElement = document.getElementById("threat-level");
-        const cameraStatusElement = document.getElementById("camera-status");
-
-        if (peopleCountElement) {
-            peopleCountElement.innerText = data.people;
+        // Update People & Threat
+        const peopleEl = document.getElementById("people-count");
+        if (peopleEl) animateCounter(peopleEl, data.people);
+        
+        const threatEl = document.getElementById("threat-level");
+        const threatIcon = document.getElementById("threat-icon");
+        if (threatEl && threatIcon) {
+            threatEl.innerText = data.threat;
+            if (data.threat === "SAFE") {
+                threatEl.className = "text-success";
+                threatIcon.className = "icon-success";
+                threatIcon.setAttribute("data-lucide", "shield-check");
+            } else if (data.loitering_alert) {
+                threatEl.innerText = "LOITERING";
+                threatEl.className = "text-danger";
+                threatIcon.className = "icon-danger";
+                threatIcon.setAttribute("data-lucide", "alert-triangle");
+            } else {
+                threatEl.className = "text-danger";
+                threatIcon.className = "icon-danger";
+                threatIcon.setAttribute("data-lucide", "shield-alert");
+            }
+            lucide.createIcons();
         }
-
-        if (threatLevelElement) {
-            threatLevelElement.innerText = data.threat;
+        
+        // Update Total Events and Trigger refresh if changed
+        const eventsEl = document.getElementById("total-events");
+        if (eventsEl && data.total_events !== undefined) {
+            if (currentTotalEvents !== -1 && currentTotalEvents !== data.total_events) {
+                animateCounter(eventsEl, data.total_events);
+                refreshDashboardData();
+            } else if (currentTotalEvents === -1) {
+                animateCounter(eventsEl, data.total_events);
+            }
+            currentTotalEvents = data.total_events;
         }
-
-        if (cameraStatusElement) {
-            cameraStatusElement.innerText = data.camera;
-        }
-
+    } catch (e) {
+        console.warn("Status API Error:", e);
     }
-
-    catch (error) {
-
-        console.log("Status API Error:", error);
-
-    }
-
 }
 
-// Update every second
-setInterval(updateLiveStatus, 1000);
-
-// Run immediately
-updateLiveStatus();
-
-async function loadAnalyticsChart() {
-
-    const chartCanvas = document.getElementById("alertsChart");
-
-    if (!chartCanvas) {
-        return;
-    }
-
-    const response = await fetch("/api/analytics");
-    const analytics = await response.json();
-
-    new Chart(chartCanvas, {
-
-        type: "bar",
-
-        data: {
-
-            labels: analytics.labels,
-
-            datasets: [{
-
-                label: "Intrusions",
-
-                data: analytics.values,
-
-                borderWidth: 1
-
-            }]
-
-        },
-
-        options: {
-
-            responsive: true,
-
-            maintainAspectRatio: false,
-
-            scales: {
-                y: {
-                    beginAtZero: true
+// Fetch System Metrics (CPU, RAM, Latency)
+async function fetchSystemMetrics() {
+    try {
+        const resp = await fetch("/api/system_metrics");
+        if (!resp.ok) return;
+        const metrics = await resp.json();
+        
+        // Update Progress bars
+        const updateBar = (id, metric, max, unit) => {
+            const valEl = document.getElementById(`${id}-value`);
+            const fillEl = document.querySelector(`.${id}-fill`);
+            if (valEl && fillEl) {
+                if (metric === undefined || metric === null || isNaN(metric) || (metric <= 0 && id !== "cpu" && id !== "ram")) {
+                    valEl.innerText = "N/A";
+                    fillEl.style.width = "0%";
+                    fillEl.style.background = "var(--text-muted)";
+                } else {
+                    valEl.innerText = `${metric}${unit}`;
+                    const width = Math.min((metric / max) * 100, 100);
+                    fillEl.style.width = `${width}%`;
+                    
+                    // Color coding
+                    if (width > 85) fillEl.style.background = "var(--danger)";
+                    else if (width > 60) fillEl.style.background = "var(--warning)";
+                    else fillEl.style.background = "var(--cyan)";
                 }
             }
+        };
+        
+        updateBar("cpu", metrics.cpu, 100, "%");
+        updateBar("ram", metrics.ram, 100, "%");
+        updateBar("latency", metrics.latency, 200, "ms");
+        updateBar("fps", metrics.fps, 60, "");
+        
+        const fpsOverlay = document.getElementById("overlay-fps");
+        if (fpsOverlay) fpsOverlay.innerText = `FPS: ${metrics.fps}`;
 
+        // Update Service Health
+        const statuses = document.querySelectorAll(".status-item .indicator");
+        if (statuses.length === 6) {
+            const services = ["ai", "camera", "database", "auth", "email", "analytics"];
+            const serviceNames = ["AI Engine", "Camera Service", "Database", "Authentication", "Email Service", "Analytics Engine"];
+            services.forEach((s, idx) => {
+                let statusClass = metrics.services[s];
+                if (statusClass === "not configured") {
+                    statusClass = "warning";
+                }
+                statuses[idx].className = `indicator ${statusClass}`;
+                
+                let next = statuses[idx].nextSibling;
+                if (next && next.nodeType === 3) {
+                    next.nodeValue = ` ${serviceNames[idx]} - ${metrics.services[s].toUpperCase()}`;
+                }
+            });
         }
+        
+        // Update main Camera Status text dynamically
+        const cameraStatusText = document.getElementById("camera-status");
+        if (cameraStatusText && metrics.services.camera) {
+            const camStatus = metrics.services.camera.toLowerCase();
+            const camStatusUpper = camStatus.toUpperCase();
+            cameraStatusText.innerText = camStatusUpper;
+            if (camStatusUpper === "ONLINE") {
+                cameraStatusText.className = "text-success";
+            } else {
+                cameraStatusText.className = "text-danger";
+            }
 
-    });
-
+            // Auto-reconnect camera stream if it just came online to prevent stalled MJPEG feed
+            if (camStatus === "online" && previousCameraStatus !== "online") {
+                const mainImg = document.getElementById("main-camera-img");
+                if (mainImg) {
+                    mainImg.src = `/video_feed?t=${new Date().getTime()}`;
+                }
+            }
+            previousCameraStatus = camStatus;
+        }
+    } catch (e) {
+        console.warn("System Metrics Error:", e);
+    }
 }
 
-loadAnalyticsChart();
+async function refreshDashboardData() {
+    // 1. Refresh Alerts
+    const alertsList = document.getElementById("recent-alerts-list");
+    if (alertsList) {
+        try {
+            const resp = await fetch("/api/alerts");
+            if (resp.ok) {
+                const alerts = await resp.json();
+                let html = "";
+                alerts.slice(0, 6).forEach(a => {
+                    const isHigh = a.event.includes("Intrusion");
+                    html += `
+                        <div class="alert-item ${isHigh ? 'severity-high' : ''}">
+                            <div class="alert-icon"><i data-lucide="${isHigh ? 'user-x' : 'info'}"></i></div>
+                            <div class="alert-content">
+                                <strong>Event #${a.id}</strong>
+                                <p>${a.event}</p>
+                                <small><i data-lucide="clock" style="width:12px"></i> ${a.time}</small>
+                            </div>
+                        </div>
+                    `;
+                });
+                alertsList.innerHTML = html;
+                lucide.createIcons();
+            }
+        } catch (e) { }
+    }
+    
+    // 2. Trigger Search Box refresh if present to update Gallery
+    const searchBox = document.getElementById("search-box");
+    if (searchBox) {
+        searchBox.dispatchEvent(new KeyboardEvent('keyup'));
+    }
+    
+    // 3. Refresh Analytics
+    loadAnalyticsChart();
+}
+
+async function loadAnalyticsChart() {
+    const canvas = document.getElementById("alertsChart");
+    if (!canvas) return;
+    
+    try {
+        const resp = await fetch("/api/analytics");
+        if (!resp.ok) return;
+        const data = await resp.json();
+        
+        if (systemChartInstance) {
+            systemChartInstance.destroy();
+        }
+        
+        systemChartInstance = new Chart(canvas, {
+            type: "line",
+            data: {
+                labels: data.labels,
+                datasets: [{
+                    label: "Security Events",
+                    data: data.values,
+                    borderColor: "#7c3aed",
+                    backgroundColor: "rgba(124, 58, 237, 0.2)",
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: "#22d3ee",
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: { color: "#f8fafc" }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: "rgba(255,255,255,0.05)" },
+                        ticks: { color: "#94a3b8" }
+                    },
+                    x: {
+                        grid: { color: "rgba(255,255,255,0.05)" },
+                        ticks: { color: "#94a3b8" }
+                    }
+                }
+            }
+        });
+    } catch (e) { }
+}
+
+// Camera Selector Logic
+const camSelect = document.getElementById("camera-select");
+if (camSelect) {
+    camSelect.addEventListener("change", (e) => {
+        const val = e.target.value;
+        const img = document.getElementById("main-camera-img");
+        const placeholder = document.getElementById("offline-placeholder");
+        const badge = document.querySelector(".badge-cam");
+        
+        if (badge) badge.innerText = `CAM 0${val}`;
+        
+        if (val === "1") {
+            img.style.display = "block";
+            placeholder.style.display = "none";
+            document.querySelector(".badge-live").style.display = "flex";
+        } else {
+            img.style.display = "none";
+            placeholder.style.display = "flex";
+            document.querySelector(".badge-live").style.display = "none";
+        }
+    });
+}
+
+// Search Logic for Gallery
 const searchBox = document.getElementById("search-box");
-
 if (searchBox) {
-
     searchBox.addEventListener("keyup", async () => {
-
-        const keyword = searchBox.value;
-
-        const response = await fetch(
-            `/api/search?q=${encodeURIComponent(keyword)}`
-        );
-
-        const events = await response.json();
-
-        const gallery = document.getElementById("gallery-grid");
-
-        if (!gallery) {
-            return;
-        }
-
-gallery.innerHTML = "";
-
-events.forEach(event => {
-
-    gallery.innerHTML += `
-
-        <div class="evidence">
-
-            <img src="/${event[3]}" alt="Evidence">
-
-            <div class="body">
-
-                <h3>Event #${event[0]}</h3>
-
-                <p>${event[1]}</p>
-
-                <small>${event[2]}</small>
-
-                <br><br>
-
-                <div class="evidence-buttons">
-
-                    <a href="/${event[3]}" target="_blank">
-                        View
-                    </a>
-
-                    <a href="/${event[3]}" download>
-                        Download
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    `;
-
-});
-
+        try {
+            const resp = await fetch(`/api/search?q=${encodeURIComponent(searchBox.value)}`);
+            if (!resp.ok) return;
+            const events = await resp.json();
+            const gallery = document.getElementById("gallery-grid");
+            if (!gallery) return;
+            
+            let html = "";
+            events.slice(0,8).forEach(e => {
+                html += `
+                <div class="evidence-card">
+                    <div class="evidence-img-wrapper">
+                        <img src="/${e[3]}" alt="Evidence">
+                        <div class="evidence-overlay">
+                            <a href="/${e[3]}" target="_blank" class="btn-icon"><i data-lucide="eye"></i></a>
+                            <a href="/${e[3]}" download class="btn-icon"><i data-lucide="download"></i></a>
+                        </div>
+                    </div>
+                    <div class="evidence-body">
+                        <h4>Event #${e[0]}</h4>
+                        <p><i data-lucide="tag"></i> ${e[1]}</p>
+                        <small><i data-lucide="clock"></i> ${e[2]}</small>
+                    </div>
+                </div>`;
+            });
+            gallery.innerHTML = html || `<div class="empty-state"><i data-lucide="image-off"></i><p>No evidence found.</p></div>`;
+            lucide.createIcons();
+        } catch (e) {}
     });
-
 }
+
+// Initialize
+setInterval(updateLiveStatus, 1000);
+setInterval(fetchSystemMetrics, 2000);
+updateLiveStatus();
+fetchSystemMetrics();
+loadAnalyticsChart();
