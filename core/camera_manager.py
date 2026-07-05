@@ -1,40 +1,488 @@
+""" Overall flow of camera_manager.py:
+
+Camera
+   │
+   ▼
+Capture Thread
+   │
+   ▼
+Latest Frame
+   │
+   ▼
+YOLO Detection
+   │
+   ▼
+Face Recognition (Background)
+   │
+   ▼
+Restricted Zone Check
+   │
+   ▼
+Intrusion?
+   │
+   ▼
+Loitering?
+   │
+   ▼
+Save Event
+   │
+   ▼
+Email Alert
+   │
+   ▼
+Dashboard Update
+
+"""
+
+""" There r only 2 main classes in this file:
+1. UserCameraThread: Ye class har user ke liye ek alag thread create krta hai jo camera feed ko process krta hai.
+2. CameraManager: Ye khud camera nahi chalata.Ye sirf bolta hai
+
+"Is user ka thread bana hua hai kya?"
+
+Agar nahi
+↓
+Thread bana do.
+
+Agar bana hua hai
+↓
+Wahi return kar do.
+"""
 import cv2
-import time
+import time  # Python ka built-in time module use kr rhe hain
+"""
+Example
+time.time()
+
+Output: 1751600000.2134
+
+Ye koi normal clock nahi hai.
+Ye Unix Timestamp hota hai.
+
+Matlab  1 Jan 1970 se abhi tak kitne seconds beet gaye.
+"""
 from threading import Thread, Lock
+"""
+## Pehle Thread samjho : Normally Python aise chalta hai
+
+Step 1
+↓
+Step 2
+↓
+Step 3
+↓
+Step 4
+
+Ek kaam khatam.Phir doosra.Lekin surveillance me ye possible nahi.
+Camera continuously chal raha hai.Email bhi bhejni hai.Database bhi save karna hai.
+Browser ko frame bhi bhejna hai.Face Recognition bhi karni hai.Sab ek saath.
+
+Isliye ->
+Main Thread
+Camera Thread
+Recognition Thread
+Email Thread
+
+Sab parallel chalenge.
+
+Isi liye
+class UserCameraThread(Thread):
+
+likha hai.Matlab
+Ye class ek thread banegi.
+
+## Lock kya hai? : Ye beginners ignore kar dete hain.Socho
+Do thread ek hi variable change kar rahe hain.
+people_count=5
+
+Camera thread
+↓
+6
+
+Email thread
+↓
+7
+
+Dono same time likhenge.Result corrupt ho sakta hai.
+Lock bolta hai. Ek time par sirf ek thread andar aa sakta hai.
+
+Example :
+Without Lock
+
+Thread A
+↓
+Read value
+↓
+5
+
+Isi time
+
+Thread B
+↓
+Read value
+↓
+5
+
+Ab
+
+A
+↓
+6
+
+B
+↓
+6
+
+Expected : 7
+
+Mila : 6
+
+Data loss.
+Lock lagane ke baad
+
+Thread A
+↓
+Lock
+↓
+Update
+↓
+Unlock
+↓
+Thread B
+
+
+Safe
+"""
 import numpy as np
+"""
+Computer image ko image ki tarah nahi dekhta.Wo matrix dekhta hai.
+
+Example:
+2×2 grayscale image
+
+50   80
+120 255
+
+Ye actually NumPy array hai.
+Color image:
+
+[
+ [[255,0,0],[0,255,0]],
+
+ [[0,0,255],[255,255,255]]
+]
+
+Har pixel [R,G,B] store karta hai.
+"""
 from datetime import datetime
+"""
+Datetime kya hai? :
+Ye Python ka built-in module hai jo date aur time ko human-readable format me handle karta hai.
+
+Difference dekho: time.time()
+Output: 1751612456.231
+
+Ye sirf timestamp hai.
+
+Lekin : datetime.now()
+
+Output: 2026-07-04 13:45:21
+Ye insaan ke padhne layak format hai.
+
+Sentinel AI me iska use. Jab intrusion detect hoti hai:
+Person entered restricted zone.Database me save karna hai.
+To timestamp aise save hoga: 2026-07-04 13:45:21
+Email me bhi yehi dikhega.
+
+Example: ⚠ Intrusion Detected
+
+Time:
+04 Jul 2026
+13:45:21
+
+Isliye datetime import hua hai.
+"""
 from concurrent.futures import ThreadPoolExecutor
+"""
+Pehle problem samjho :
+Suppose camera chal raha hai.Ek frame aaya.Face recognition start hui.
+Agar face recognition me 2 second lag gaye to...
 
+Frame 1
+↓
+Recognition
+↓
+2 sec wait
+↓
+Frame 2
+
+Camera lag karega.
+
+Solution?
+Background me alag thread me chala do.
+
+Isi ka kaam hai: ThreadPoolExecutor
+
+Ye ek thread manager hai.
+
+Example: Tumhare paas 100 kaam hain.
+
+Without Executor ->
+
+Work 1
+↓
+Work 2
+↓
+Work 3
+↓
+Work 4
+
+Ek-ek karke.
+
+With Executor ->
+
+Worker 1
+↓
+Task A
+
+Worker 2
+↓
+Task B
+
+Worker 3
+↓
+Task C
+
+Sab parallel.
+
+Sentinel AI me :
+
+Socho 
+YOLO detect karta hai
+↓
+Face Recognition
+↓
+Email
+↓
+Database
+
+Ye sab ek hi thread me karoge to FPS gir jayega. Isliye
+
+Main Camera Thread
+↓
+Frame Process
+↓
+Executor
+↓
+Recognition Thread
+↓
+Email Thread
+↓
+Save Thread
+
+Camera smooth chalta rehta hai.
+"""
 from config import RESTRICTED_ZONE
+"""
+config.py :
+Ye project ka settings file hota hai.Usme kuch aisa hoga:
+
+RESTRICTED_ZONE = [
+    (120,100),
+    (550,100),
+    (550,400),
+    (120,400)
+]
+
+Ye polygon hai.Matlab Restricted area.
+
+Diagram:
+
++---------------------------+
+
+        Camera View
+
+        _________
+       |         |
+       | Zone    |
+       |         |
+       |_________|
+
++---------------------------+
+
+Ab agar koi person is rectangle ke andar aaya
+↓
+Intrusion.
+
+Achhi practice kya hai? 
+
+Ye line mat likho: restricted_zone = [...]
+Har file me.Ek hi jagah define karo.
+Phir import karo.
+
+Isi liye : from config import RESTRICTED_ZONE
+"""
 from core.detector import detect
+"""
+Ye project ka AI brain connect kar raha hai.
+detector.py :ke andar likely function hai ->def detect(frame):
+Ye frame lega.YOLO chalayega.Objects return karega.
+
+Example :
+Input :
+Frame
+↓
+YOLO
+↓
+Output :
+[
+ Person,
+ Car,
+ Helmet
+]
+
+Aur har object ke saath
+Class
+Confidence
+Bounding Box
+hoga.
+
+Example:
+[
+{
+"class":"person",
+"confidence":0.94,
+"box":[120,80,250,400]
+}
+]
+
+Camera Manager khud detect nahi karta. Wo sirf bolta hai
+detections = detect(frame)
+"""
 from core.event_engine import check_intrusion
+"""
+YOLO sirf ye bolta hai.Person mila.Bas.Lekin Sentinel AI ko ye nahi chahiye.
+Usko chahiye
 
+Kya person restricted area me hai?
+Ye AI ka kaam nahi hai.Ye business logic hai.
+
+Isi liye : check_intrusion()
+
+banaya gaya.
+
+Flow dekho :
+Camera
+↓
+YOLO
+↓
+Person detected
+↓
+check_intrusion()
+↓
+YES
+↓
+Create Event
+
+Ye function probably check karta hoga : pointPolygonTest(...)
+ya Bounding Box Center Polygon ke andar hai ya nahi.
+
+Agar hai
+↓
+True
+
+Nahi
+↓
+False
+"""
 from core.alert_manager import save_intrusion_image
-from core.email_alert import send_intrusion_email
-from database.database import save_event, DATABASE_PATH
-import sqlite3
-from database.user import get_user_settings
+"""
+alert_manager.py file ke andar ek function hai:save_intrusion_image(...)
+Iska kaam hai: Intrusion detect hote hi evidence image save karna.
 
+Real Flow:
+Suppose camera ne ye detect kiya:
+
+Person
+↓
+Restricted Zone
+↓
+Intrusion
+
+Ab sirf alert bhejna enough nahi hai.Evidence bhi chahiye.
+To ye function kuch aisa karega: save_intrusion_image(frame)
+
+Result :
+intrusions/
+2026-07-04_13-45-22.jpg
+
+Save ho gaya.
+
+Real World :
+CCTV me jab motion detect hota hai
+↓
+Screenshot save hota hai.
+
+Ye wahi kaam hai.
+"""
+from core.email_alert import send_intrusion_email
+"""
+Ye function intrusion hone ke baad mail bhejta hai.
+Flow:
+Camera
+↓
+YOLO
+↓
+Intrusion
+↓
+Screenshot Save
+↓
+Email
+
+Mail kuch aisa ho sakta hai:
+⚠ Intrusion Detected
+Time: 13:45
+Location: Restricted Zone
+
+Attachment:
+image.jpg
+"""
+from database.database import save_event, DATABASE_PATH
+# save_event -> Event ko database me save karta hai.
+# DATABASE_PATH -> SQLite database ka location/path.
+
+import sqlite3
+# SQLite database ke saath connect aur queries run karne ke liye.
+from database.user import get_user_settings
+# User ki surveillance settings (camera, alerts, zones, etc.) load karta hai.
 
 class UserCameraThread(Thread):
+# Har user ke camera ko alag thread me run karne wali class.
+# Isse multiple users ke cameras ek saath handle ho sakte hain.
+    
     def __init__(self, user_id):
+
         """
         Purpose:
         Naya camera thread initialize krna user ke liye.
-
         Parameters:
         user_id -> Jis user ka camera start krna hai uska ID.
         """
         super().__init__()
+        # Parent Thread class ko initialize karta hai.
+        # Iske bina thread properly work nahi karega.
         self.user_id = user_id
-
-        # Daemon thread background me chalta hai aur main program band hone pr khud band ho jata hai
+        # Current thread kis user ka hai, uska ID store karta hai.
+        
         self.daemon = True
-
+        # Daemon thread background me chalta hai aur main program band hone pr khud band ho jata hai
+        # https://chatgpt.com/s/t_6a48d9b359fc8191bf0c0f27beb2eada
         self.last_accessed = time.time()
+        # Last time camera kab access hua tha uska timestamp.
+        # Inactive camera ko automatically stop karne me help karta hai.
         self.latest_jpeg = None
-
-        # Frontend dashboard ko bhejne ke liye initial stats
+        # Browser ko bhejne ke liye latest processed JPEG frame store hoga.
+        
         self.latest_status = {
             "people": 0,
             "intrusion": False,
@@ -44,24 +492,49 @@ class UserCameraThread(Thread):
             "loitering_alert": False,
             "max_people": 0,
         }
+        # Frontend dashboard ke liye live camera statistics.
+        #
+        # people           -> Current detected people
+        # intrusion        -> Restricted zone breach hui ya nahi
+        # camera           -> Camera status (online/offline)
+        # latency          -> Frame process hone ka time
+        # fps              -> Current Frames Per Second
+        # loitering_alert  -> Koi person zyada der se zone me hai ya nahi
+        # max_people       -> Maximum people detected
+
         self.running = True
+        # https://chatgpt.com/s/t_6a48dad5af7481918a283475f9e4021b
 
         # Tracking states (Kon kab aaya aur kahan hai)
         self.active_zone_tracks = {}  # track_id -> entry_time (float)
-        self.loitering_alerted = set()  # un logo ki list jinka alert ja chuka hai
+        # Track ID ke saath entry time store karta hai.
+        # Loitering detection ke liye use hota hai.
+        self.loitering_alerted = set()  
+        # un logo ki list jinka loitering alert ja chuka hai aur duplicates alert rokta hai.
         self.recognized_faces = {}  # track_id -> face details (name, is_known)
+        # Recognized faces ko cache karta hai.
+        # Baar-baar face recognition chalane ki zarurat nahi padti.
         self.recognition_attempts = {}  # track_id -> int (kitni baar try kiya)
+        # Har track ke face recognition attempts count karta hai.
         self.recognition_in_progress = set()  # track_id -> is processing async?
+        # Jo tracks currently recognize ho rahe hain unko store karta hai.
+        # Ek hi person par multiple recognition threads chalne se bachata hai.
         self._last_processed_frame_id = None
+        # Same frame ko dobara process hone se rokta hai.
 
         # Initial loading screen (black frame) bana rhe hain
         self._black_frame = self._generate_black_frame()
+        # Camera start hone se pehle loading/blank frame generate karta hai.
         self.latest_jpeg = self._black_frame
+        # Starting me browser ko black/loading frame dikhaya jayega.
 
         # Camera se raw frames nikalne ke liye variables
         self._latest_raw_frame = None
+        # Camera se aaya latest raw (unprocessed) frame store karta hai.
         self._capture_running = False
+        # Camera capture thread chal raha hai ya nahi, uska status.
         self._capture_thread = None
+        # Camera capture thread ka reference store karega.
 
         # ThreadPoolExecutor background tasks (email, database) ko fast execute krne ke liye
         self.executor = ThreadPoolExecutor(max_workers=4)
