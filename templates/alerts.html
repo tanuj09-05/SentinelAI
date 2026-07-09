@@ -1,35 +1,22 @@
 {% extends "base.html" %}
 {% set active_page = "alerts" %}
-
 {% block title %}Alerts{% endblock %}
 {% block header_title %}Alerts & Notifications{% endblock %}
 
 {% block content %}
-
 <section class="search-section glass-card" style="padding: 20px; margin-bottom: 25px;">
     <form method="get" action="{{ url_for('alerts') }}">
         <div style="display:grid; grid-template-columns: 2fr 1fr auto; gap:15px; align-items:center;">
-            
             <div class="search-wrapper">
                 <i data-lucide="search" class="search-icon"></i>
-                <input
-                    type="text"
-                    name="q"
-                    class="modern-input"
-                    placeholder="Search alerts by event or date..."
-                    value="{{ keyword }}"
-                >
+                <input type="text" name="q" class="modern-input" placeholder="Search alerts by event or date..." value="{{ keyword }}">
             </div>
-
             <select name="event_type" class="modern-select">
                 <option value="All">All Event Types</option>
                 {% for event_type in event_types %}
-                    <option value="{{ event_type }}" {% if selected_event_type == event_type %}selected{% endif %}>
-                        {{ event_type }}
-                    </option>
+                <option value="{{ event_type }}" {% if selected_event_type == event_type %}selected{% endif %}>{{ event_type }}</option>
                 {% endfor %}
             </select>
-
             <button type="submit" class="btn-primary-outline" style="height: 100%; border:none; background: var(--primary); color: white; border-radius: 12px; padding: 0 25px; cursor: pointer; transition: 0.3s;">
                 <i data-lucide="filter"></i> Filter
             </button>
@@ -104,5 +91,4 @@
     </div>
     {% endif %}
 </section>
-
 {% endblock %}

@@ -4,28 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SentinelAI Command Center - {% block title %}{% endblock %}</title>
-
-    <!-- Google Font used by the dashboard styling. -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-    
-    <!-- Lucide Icons (Premium Feather alternative) -->
     <script src="https://unpkg.com/lucide@latest"></script>
-
     {% block extra_head %}{% endblock %}
 </head>
 <body>
-
-    <!-- Left sidebar navigation panel. -->
     <div class="sidebar">
-
         <div class="logo">
             <h2>SENTINELAI</h2>
             <p>Command Center</p>
         </div>
-
         <ul class="menu">
             {% set active_page = active_page | default('dashboard') %}
             <li class="{% if active_page == 'dashboard' %}active{% endif %}">
@@ -58,7 +47,6 @@
                     <i data-lucide="settings"></i> Settings
                 </a>
             </li>
-            
             {% if current_user.is_authenticated %}
             <li class="user-profile-menu">
                 <div class="user-info">
@@ -74,66 +62,46 @@
             </li>
             {% endif %}
         </ul>
-
     </div>
-
-    <!-- Main dashboard content area. -->
     <div class="main">
-
-        <!-- Top Navbar -->
         <header class="top-navbar">
             <div class="header-title">
                 <h1>{% block header_title %}AI Security Command Center{% endblock %}</h1>
             </div>
-
             <div class="header-actions">
-                <!-- Shows online status and live time. -->
                 <div class="status-badge" id="global-system-status">
                     <span class="dot"></span>
                     System Online
                 </div>
-
                 <div class="live-clock-badge">
                     <i data-lucide="clock"></i>
                     <span id="live-clock" style="font-weight:600;"></span>
                 </div>
-                
                 {% if current_user.is_authenticated %}
                 <a href="{{ url_for('report.generate_pdf_report') }}" style="display: flex; align-items: center; gap: 8px; padding: 8px 16px; background: rgba(124, 58, 237, 0.15); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 999px; color: #d8b4fe; font-size: 13px; font-weight: 600; text-decoration: none; transition: 0.3s;" onmouseover="this.style.background='rgba(124, 58, 237, 0.3)';" onmouseout="this.style.background='rgba(124, 58, 237, 0.15)';">
                     <i data-lucide="download" style="width: 16px; height: 16px;"></i> Download PDF Report
                 </a>
                 {% endif %}
-                
                 <div class="notification-bell">
                     <i data-lucide="bell"></i>
                     <span class="badge" id="notification-badge" style="display:none;">0</span>
-                    <!-- Dropdown for alerts -->
                     <div class="notification-dropdown" id="notification-dropdown">
                         <h4>Recent Alerts</h4>
-                        <div id="notification-list">
-                            <!-- Populated via JS -->
-                        </div>
+                        <div id="notification-list"></div>
                     </div>
                 </div>
-                
                 <div class="profile-icon">
                     <i data-lucide="user"></i>
                 </div>
             </div>
         </header>
-
         <div class="content-wrapper">
             {% block content %}{% endblock %}
         </div>
-
     </div>
-
-    <!-- Initialize Lucide Icons -->
     <script>
         lucide.createIcons();
     </script>
-    
     {% block scripts %}{% endblock %}
-
 </body>
 </html>

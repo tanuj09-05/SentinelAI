@@ -1,46 +1,31 @@
 {% extends "base.html" %}
 {% set active_page = "evidence" %}
-
 {% block title %}Evidence{% endblock %}
 {% block header_title %}Evidence Archive{% endblock %}
 
 {% block content %}
-
 <section class="search-section glass-card" style="padding: 20px; margin-bottom: 25px;">
     <form method="get" action="{{ url_for('evidence') }}">
         <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:15px; align-items:center;">
-            
             <div class="search-wrapper">
                 <i data-lucide="search" class="search-icon"></i>
-                <input
-                    type="text"
-                    name="q"
-                    class="modern-input"
-                    placeholder="Search by event or date..."
-                    value="{{ keyword }}"
-                >
+                <input type="text" name="q" class="modern-input" placeholder="Search by event or date..." value="{{ keyword }}">
             </div>
-
             <select name="event_type" class="modern-select">
                 <option value="All">All Event Types</option>
                 {% for event_type in event_types %}
-                    <option value="{{ event_type }}" {% if selected_event_type == event_type %}selected{% endif %}>
-                        {{ event_type }}
-                    </option>
+                <option value="{{ event_type }}" {% if selected_event_type == event_type %}selected{% endif %}>{{ event_type }}</option>
                 {% endfor %}
             </select>
-
             <select name="sort" class="modern-select">
                 <option value="id" {% if selected_sort == 'id' %}selected{% endif %}>Sort by ID</option>
                 <option value="timestamp" {% if selected_sort == 'timestamp' %}selected{% endif %}>Sort by Time</option>
                 <option value="event_type" {% if selected_sort == 'event_type' %}selected{% endif %}>Sort by Event</option>
             </select>
-
             <select name="order" class="modern-select">
                 <option value="desc" {% if selected_order == 'desc' %}selected{% endif %}>Newest First</option>
                 <option value="asc" {% if selected_order == 'asc' %}selected{% endif %}>Oldest First</option>
             </select>
-
             <button type="submit" class="btn-primary-outline" style="height: 100%; border:none; background: var(--primary); color: white; border-radius: 12px; padding: 0 20px; cursor: pointer; transition: 0.3s;">
                 <i data-lucide="filter"></i> Apply
             </button>
@@ -53,7 +38,6 @@
         <h2>Stored Evidence</h2>
         <span class="text-muted">{{ events|length }} records found</span>
     </div>
-
     {% if events %}
     <div class="gallery-grid" id="gallery-grid">
         {% for event in events %}
@@ -80,5 +64,4 @@
     </div>
     {% endif %}
 </section>
-
 {% endblock %}

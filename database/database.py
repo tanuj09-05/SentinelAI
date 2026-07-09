@@ -1,17 +1,9 @@
 import sqlite3
 from datetime import datetime
-
 from config import DATABASE_PATH
 
-
 def ensure_database_schema():
-    """
-    Create required tables if they do not exist.
-    Safe to call on every app startup without deleting existing data.
-    """
     with sqlite3.connect(DATABASE_PATH, timeout=10) as connection:
-        # WAL mode allows concurrent reads/writes and prevents "database is
-        # locked" errors when multiple connections exist in the same process.
         connection.execute("PRAGMA journal_mode=WAL")
         cursor = connection.cursor()
 
@@ -23,7 +15,7 @@ def ensure_database_schema():
                 password_hash TEXT NOT NULL,
                 created_at TEXT NOT NULL
             )
-            """)
+        """)
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS user_settings(
@@ -42,7 +34,7 @@ def ensure_database_schema():
                 updated_at TEXT NOT NULL,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
-            """)
+        """)
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS events(
@@ -53,12 +45,9 @@ def ensure_database_schema():
                 image_path TEXT,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
-            """)
+        """)
 
-        cursor.execute("""
-            DELETE FROM user_settings
-            WHERE user_id NOT IN (SELECT id FROM users)
-            """)
+        cursor.execute("DELETE FROM user_settings WHERE user_id NOT IN (SELECT id FROM users)")
 
         cursor.execute("""
             CREATE TABLE IF NOT EXISTS faces(
@@ -70,37 +59,27 @@ def ensure_database_schema():
                 created_at TEXT NOT NULL,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
             )
-            """)
+        """)
 
-        # Add tracking columns if they don't exist
         try:
             cursor.execute("ALTER TABLE events ADD COLUMN track_id INTEGER")
             cursor.execute("ALTER TABLE events ADD COLUMN entry_time TEXT")
             cursor.execute("ALTER TABLE events ADD COLUMN exit_time TEXT")
             cursor.execute("ALTER TABLE events ADD COLUMN duration REAL")
         except sqlite3.OperationalError:
-            pass  # Columns already exist
+            pass
 
-        # Add face recognition columns
         try:
             cursor.execute("ALTER TABLE events ADD COLUMN recognized_name TEXT")
             cursor.execute("ALTER TABLE events ADD COLUMN is_known BOOLEAN")
         except sqlite3.OperationalError:
             pass
 
-        # Add indexes to speed up analytics and search
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id)"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_events_event_type ON events(event_type)"
-        )
-        cursor.execute(
-            "CREATE INDEX IF NOT EXISTS idx_events_timestamp ON events(timestamp)"
-        )
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_events_user_id ON events(user_id)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_events_event_type ON events(event_type)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_events_timestamp ON events(timestamp)")
 
         connection.commit()
-
 
 def save_event(
     user_id,
@@ -113,43 +92,20 @@ def save_event(
     recognized_name=None,
     is_known=None,
 ):
-    """
-    Save a security event into the Sentinel AI database for a specific user.
-    """
     with sqlite3.connect(DATABASE_PATH, timeout=10) as connection:
         cursor = connection.cursor()
-
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         cursor.execute(
             """
-            INSERT INTO events
-            (
-                user_id,
-                event_type,
-                timestamp,
-                image_path,
-                track_id,
-                entry_time,
-                exit_time,
-                duration,
-                recognized_name,
-                is_known
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO events (
+                user_id, event_type, timestamp, image_path, track_id, 
+                entry_time, exit_time, duration, recognized_name, is_known
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
-                user_id,
-                event_type,
-                timestamp,
-                image_path,
-                track_id,
-                entry_time,
-                exit_time,
-                duration,
-                recognized_name,
-                is_known,
-            ),
+                user_id, event_type, timestamp, image_path, track_id,
+                entry_time, exit_time, duration, recognized_name, is_known
+            )
         )
-
         connection.commit()

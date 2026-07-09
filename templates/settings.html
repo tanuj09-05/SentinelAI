@@ -1,13 +1,10 @@
 {% extends "base.html" %}
 {% set active_page = "settings" %}
-
 {% block title %}Settings{% endblock %}
 {% block header_title %}System Settings{% endblock %}
 
 {% block content %}
-
 <div class="settings-content" style="max-width: 900px; margin: 0 auto;">
-
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
@@ -25,8 +22,6 @@
     {% endwith %}
 
     <form method="POST" id="settings-form">
-
-        <!-- Email Configuration Section -->
         <div class="settings-section glass-card" style="padding: 30px; margin-bottom: 25px;">
             <div class="section-header" style="border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px;">
                 <h2 style="font-size: 18px; display: flex; align-items: center; gap: 10px;"><i data-lucide="mail" style="color: var(--primary);"></i> Email Alert Configuration</h2>
@@ -40,8 +35,7 @@
             <div class="form-row full" style="margin-bottom: 20px;">
                 <div class="form-group" style="display: flex; flex-direction: column;">
                     <label for="app_password" style="margin-bottom: 8px; font-size: 14px; font-weight: 500; color: var(--text);">SMTP Application Password</label>
-                    <input type="password" id="app_password" name="app_password" class="modern-input"
-                           value="{{ settings.smtp_password }}" placeholder="16-character app password">
+                    <input type="password" id="app_password" name="app_password" class="modern-input" value="{{ settings.smtp_password }}" placeholder="16-character app password">
                     <div class="form-description" style="color: var(--muted); font-size: 12px; margin-top: 6px;"><i data-lucide="lock" style="width:12px; vertical-align:middle;"></i> Credentials are securely stored. Requires Gmail App Password if 2FA is active.</div>
                 </div>
             </div>
@@ -51,7 +45,6 @@
             </div>
             
             <div class="advanced-settings" id="advanced-settings" style="display: none; background: rgba(0,0,0,0.2); padding: 25px; border-radius: 12px; border: 1px dashed var(--border);">
-                
                 <div class="form-row full" style="margin-bottom: 20px;">
                     <div class="form-group" style="flex-direction: row; align-items: center; gap: 10px;">
                         <input type="checkbox" id="use_custom_receiver" name="use_custom_receiver" onchange="toggleCustomReceiver()" {% if settings.receiver_email and settings.receiver_email != user.email %}checked{% endif %} style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary);">
@@ -62,79 +55,61 @@
                 <div class="form-row full" id="custom-receiver-group" style="display: none; margin-bottom: 20px;">
                     <div class="form-group" style="display: flex; flex-direction: column;">
                         <label for="custom_receiver_email" style="margin-bottom: 8px; font-size: 14px; font-weight: 500;">Custom Receiver Email</label>
-                        <input type="email" id="custom_receiver_email" name="custom_receiver_email" class="modern-input"
-                               value="{{ settings.receiver_email if settings.receiver_email != user.email else '' }}" placeholder="receiver@enterprise.com">
+                        <input type="email" id="custom_receiver_email" name="custom_receiver_email" class="modern-input" value="{{ settings.receiver_email if settings.receiver_email != user.email else '' }}" placeholder="receiver@enterprise.com">
                     </div>
                 </div>
 
                 <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
                     <div class="form-group" style="display: flex; flex-direction: column;">
                         <label for="smtp_host" style="margin-bottom: 8px; font-size: 14px; font-weight: 500;">SMTP Host</label>
-                        <input type="text" id="smtp_host" name="smtp_host" class="modern-input"
-                               value="{{ settings.smtp_host }}" placeholder="smtp.gmail.com">
+                        <input type="text" id="smtp_host" name="smtp_host" class="modern-input" value="{{ settings.smtp_host }}" placeholder="smtp.gmail.com">
                     </div>
-
                     <div class="form-group" style="display: flex; flex-direction: column;">
                         <label for="smtp_port" style="margin-bottom: 8px; font-size: 14px; font-weight: 500;">SMTP Port</label>
-                        <input type="number" id="smtp_port" name="smtp_port" class="modern-input"
-                               value="{{ settings.smtp_port }}" placeholder="587">
+                        <input type="number" id="smtp_port" name="smtp_port" class="modern-input" value="{{ settings.smtp_port }}" placeholder="587">
                     </div>
                 </div>
                 
                 <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                     <div class="form-group" style="display: flex; flex-direction: column;">
                         <label for="smtp_username" style="margin-bottom: 8px; font-size: 14px; font-weight: 500;">SMTP Username</label>
-                        <input type="text" id="smtp_username" name="smtp_username" class="modern-input"
-                               value="{{ settings.smtp_username }}" placeholder="Your email address">
+                        <input type="text" id="smtp_username" name="smtp_username" class="modern-input" value="{{ settings.smtp_username }}" placeholder="Your email address">
                     </div>
-
                     <div class="form-group" style="display: flex; flex-direction: column;">
                         <label for="sender_email" style="margin-bottom: 8px; font-size: 14px; font-weight: 500;">Sender Email Identity</label>
-                        <input type="email" id="sender_email" name="sender_email" class="modern-input"
-                               value="{{ settings.sender_email }}" placeholder="alerts@enterprise.com">
+                        <input type="email" id="sender_email" name="sender_email" class="modern-input" value="{{ settings.sender_email }}" placeholder="alerts@enterprise.com">
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Camera Configuration Section -->
         <div class="settings-section glass-card" style="padding: 30px; margin-bottom: 25px;">
             <div class="section-header" style="border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px;">
                 <h2 style="font-size: 18px; display: flex; align-items: center; gap: 10px;"><i data-lucide="video" style="color: var(--primary);"></i> Surveillance Source</h2>
             </div>
-
             <div class="form-row full" style="margin-bottom: 20px;">
                 <div class="form-group" style="display: flex; flex-direction: column;">
                     <label for="camera_source" style="margin-bottom: 8px; font-size: 14px; font-weight: 500;">Hardware Interface</label>
                     <select id="camera_source" name="camera_source" class="modern-select" style="width: 100%; padding: 14px 20px; font-size: 14px;">
-                        <option value="index" {% if settings.camera_source == 'index' %}selected{% endif %}>
-                            Local Device (Webcam / USB / PCIe)
-                        </option>
-                        <option value="rtsp" {% if settings.camera_source == 'rtsp' %}selected{% endif %}>
-                            Network Device (RTSP / IP Camera)
-                        </option>
+                        <option value="index" {% if settings.camera_source == 'index' %}selected{% endif %}>Local Device (Webcam / USB / PCIe)</option>
+                        <option value="rtsp" {% if settings.camera_source == 'rtsp' %}selected{% endif %}>Network Device (RTSP / IP Camera)</option>
                     </select>
                 </div>
             </div>
-
             <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div class="form-group" style="display: flex; flex-direction: column;">
                     <label for="camera_index" style="margin-bottom: 8px; font-size: 14px; font-weight: 500;">Device Index</label>
-                    <input type="number" id="camera_index" name="camera_index" class="modern-input"
-                           value="{{ settings.camera_index }}" placeholder="0" min="0">
+                    <input type="number" id="camera_index" name="camera_index" class="modern-input" value="{{ settings.camera_index }}" placeholder="0" min="0">
                     <div class="form-description" style="color: var(--muted); font-size: 12px; margin-top: 6px;">Hardware index (0 for default node).</div>
                 </div>
-
                 <div class="form-group" style="display: flex; flex-direction: column;">
                     <label for="rtsp_url" style="margin-bottom: 8px; font-size: 14px; font-weight: 500;">RTSP Address</label>
-                    <input type="text" id="rtsp_url" name="rtsp_url" class="modern-input"
-                           value="{{ settings.rtsp_url }}" placeholder="rtsp://user:pass@192.168.1.100:554/h264">
+                    <input type="text" id="rtsp_url" name="rtsp_url" class="modern-input" value="{{ settings.rtsp_url }}" placeholder="rtsp://user:pass@192.168.1.100:554/h264">
                     <div class="form-description" style="color: var(--muted); font-size: 12px; margin-top: 6px;">Network stream protocol URL.</div>
                 </div>
             </div>
         </div>
 
-        <!-- Action Buttons -->
         <div class="button-group" style="display: flex; gap: 15px; margin-top: 30px;">
             <button type="submit" class="btn-primary-outline" style="background: var(--primary); color: white; border: none; padding: 14px 30px; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;">
                 <i data-lucide="save"></i> Save Configuration
@@ -143,62 +118,41 @@
                 <i data-lucide="send"></i> Dispatch Test Alert
             </button>
         </div>
-
     </form>
 </div>
 
-<!-- Toast Notification -->
 <div id="toast" style="visibility: hidden; min-width: 280px; background-color: var(--panel); color: white; text-align: center; border-radius: 12px; padding: 16px 20px; position: fixed; z-index: 1000; left: 50%; bottom: 30px; transform: translateX(-50%); border: 1px solid var(--border); box-shadow: var(--shadow); font-family: 'Inter', sans-serif; font-size: 14px; transition: visibility 0s, opacity 0.3s linear, bottom 0.3s ease-out; opacity: 0; bottom: 10px;">
     Toast message here
 </div>
-
 {% endblock %}
 
 {% block scripts %}
 <script>
     function toggleAdvanced() {
-        const advancedSettings = document.getElementById("advanced-settings");
-        const toggleText = document.getElementById("advanced-toggle-text");
+        const adv = document.getElementById("advanced-settings");
+        const toggle = document.getElementById("advanced-toggle-text");
+        const isHidden = adv.style.display === "none";
         
-        if (advancedSettings.style.display === "block") {
-            advancedSettings.style.display = "none";
-            toggleText.innerHTML = '<i data-lucide="settings-2" style="width: 16px;"></i> Show Advanced Configuration';
-        } else {
-            advancedSettings.style.display = "block";
-            toggleText.innerHTML = '<i data-lucide="settings-2" style="width: 16px;"></i> Hide Advanced Configuration';
-        }
+        adv.style.display = isHidden ? "block" : "none";
+        toggle.innerHTML = `<i data-lucide="settings-2" style="width: 16px;"></i> ${isHidden ? 'Hide' : 'Show'} Advanced Configuration`;
         lucide.createIcons();
     }
     
     function toggleCustomReceiver() {
-        const checkbox = document.getElementById("use_custom_receiver");
-        const receiverGroup = document.getElementById("custom-receiver-group");
-        if (checkbox.checked) {
-            receiverGroup.style.display = "block";
-        } else {
-            receiverGroup.style.display = "none";
-        }
+        document.getElementById("custom-receiver-group").style.display = document.getElementById("use_custom_receiver").checked ? "block" : "none";
     }
     
-    window.addEventListener('DOMContentLoaded', () => {
-        toggleCustomReceiver();
-    });
+    window.addEventListener('DOMContentLoaded', toggleCustomReceiver);
     
     function showToast(message, isSuccess = true) {
         const toast = document.getElementById("toast");
         toast.innerText = message;
-        
-        if(isSuccess) {
-            toast.style.borderLeft = "4px solid var(--success)";
-        } else {
-            toast.style.borderLeft = "4px solid var(--danger)";
-        }
-        
+        toast.style.borderLeft = `4px solid var(--${isSuccess ? 'success' : 'danger'})`;
         toast.style.visibility = "visible";
         toast.style.opacity = "1";
         toast.style.bottom = "30px";
         
-        setTimeout(function(){ 
+        setTimeout(() => { 
             toast.style.opacity = "0";
             toast.style.bottom = "10px";
             setTimeout(() => toast.style.visibility = "hidden", 300);
@@ -209,17 +163,12 @@
         const btn = document.getElementById("test-email-btn");
         const originalText = btn.innerHTML;
         btn.innerHTML = '<i data-lucide="loader" class="spin"></i> Sending...';
-        lucide.createIcons();
         btn.disabled = true;
+        lucide.createIcons();
         
         try {
-            const response = await fetch("/settings/test_email", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            });
-            const result = await response.json();
+            const resp = await fetch("/settings/test_email", { method: "POST", headers: { "Content-Type": "application/json" } });
+            const result = await resp.json();
             showToast(result.message, result.success);
         } catch (error) {
             showToast("Failed to connect to the network.", false);

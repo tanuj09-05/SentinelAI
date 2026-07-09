@@ -1,6 +1,3 @@
-// Enterprise SentinelAI Dashboard Logic
-
-// Initialize real-time clock
 function updateLiveClock() {
     const clock = document.getElementById("live-clock");
     if (clock) {
@@ -10,7 +7,6 @@ function updateLiveClock() {
 setInterval(updateLiveClock, 1000);
 updateLiveClock();
 
-// Animate numeric counters smoothly
 function animateCounter(el, target) {
     if (isNaN(target)) return;
     let current = parseInt(el.innerText) || 0;
@@ -34,19 +30,18 @@ let currentTotalEvents = -1;
 let systemChartInstance = null;
 let previousCameraStatus = "offline";
 
-// Fetch core status and trigger dashboard updates
 async function updateLiveStatus() {
     try {
         const resp = await fetch("/api/status");
         if (!resp.ok) return;
         const data = await resp.json();
 
-        // Update People & Threat
         const peopleEl = document.getElementById("people-count");
         if (peopleEl) animateCounter(peopleEl, data.people);
         
         const threatEl = document.getElementById("threat-level");
         const threatIcon = document.getElementById("threat-icon");
+        
         if (threatEl && threatIcon) {
             threatEl.innerText = data.threat;
             if (data.threat === "SAFE") {
@@ -66,7 +61,6 @@ async function updateLiveStatus() {
             lucide.createIcons();
         }
         
-        // Update Total Events and Trigger refresh if changed
         const eventsEl = document.getElementById("total-events");
         if (eventsEl && data.total_events !== undefined) {
             if (currentTotalEvents !== -1 && currentTotalEvents !== data.total_events) {
@@ -82,33 +76,31 @@ async function updateLiveStatus() {
     }
 }
 
-// Fetch System Metrics (CPU, RAM, Latency)
 async function fetchSystemMetrics() {
     try {
         const resp = await fetch("/api/system_metrics");
         if (!resp.ok) return;
         const metrics = await resp.json();
         
-        // Update Progress bars
         const updateBar = (id, metric, max, unit) => {
             const valEl = document.getElementById(`${id}-value`);
             const fillEl = document.querySelector(`.${id}-fill`);
-            if (valEl && fillEl) {
-                if (metric === undefined || metric === null || isNaN(metric) || (metric <= 0 && id !== "cpu" && id !== "ram")) {
-                    valEl.innerText = "N/A";
-                    fillEl.style.width = "0%";
-                    fillEl.style.background = "var(--text-muted)";
-                } else {
-                    valEl.innerText = `${metric}${unit}`;
-                    const width = Math.min((metric / max) * 100, 100);
-                    fillEl.style.width = `${width}%`;
-                    
-                    // Color coding
-                    if (width > 85) fillEl.style.background = "var(--danger)";
-                    else if (width > 60) fillEl.style.background = "var(--warning)";
-                    else fillEl.style.background = "var(--cyan)";
-                }
+            if (!valEl || !fillEl) return;
+            
+            if (metric === undefined || metric === null || isNaN(metric) || (metric <= 0 && id !== "cpu" && id !== "ram")) {
+                valEl.innerText = "N/A";
+                fillEl.style.width = "0%";
+                fillEl.style.background = "var(--text-muted)";
+                return;
             }
+            
+            valEl.innerText = `${metric}${unit}`;
+            const width = Math.min((metric / max) * 100, 100);
+            fillEl.style.width = `${width}%`;
+            
+            if (width > 85) fillEl.style.background = "var(--danger)";
+            else if (width > 60) fillEl.style.background = "var(--warning)";
+            else fillEl.style.background = "var(--cyan)";
         };
         
         updateBar("cpu", metrics.cpu, 100, "%");
@@ -119,38 +111,29 @@ async function fetchSystemMetrics() {
         const fpsOverlay = document.getElementById("overlay-fps");
         if (fpsOverlay) fpsOverlay.innerText = `FPS: ${metrics.fps}`;
 
-        // Update Service Health
         const statuses = document.querySelectorAll(".status-item .indicator");
         if (statuses.length === 6) {
             const services = ["ai", "camera", "database", "auth", "email", "analytics"];
             const serviceNames = ["AI Engine", "Camera Service", "Database", "Authentication", "Email Service", "Analytics Engine"];
             services.forEach((s, idx) => {
-                let statusClass = metrics.services[s];
-                if (statusClass === "not configured") {
-                    statusClass = "warning";
-                }
+                const statusClass = metrics.services[s] === "not configured" ? "warning" : metrics.services[s];
                 statuses[idx].className = `indicator ${statusClass}`;
                 
-                let next = statuses[idx].nextSibling;
+                const next = statuses[idx].nextSibling;
                 if (next && next.nodeType === 3) {
                     next.nodeValue = ` ${serviceNames[idx]} - ${metrics.services[s].toUpperCase()}`;
                 }
             });
         }
         
-        // Update main Camera Status text dynamically
         const cameraStatusText = document.getElementById("camera-status");
         if (cameraStatusText && metrics.services.camera) {
             const camStatus = metrics.services.camera.toLowerCase();
             const camStatusUpper = camStatus.toUpperCase();
+            
             cameraStatusText.innerText = camStatusUpper;
-            if (camStatusUpper === "ONLINE") {
-                cameraStatusText.className = "text-success";
-            } else {
-                cameraStatusText.className = "text-danger";
-            }
+            cameraStatusText.className = camStatusUpper === "ONLINE" ? "text-success" : "text-danger";
 
-            // Auto-reconnect camera stream if it just came online to prevent stalled MJPEG feed
             if (camStatus === "online" && previousCameraStatus !== "online") {
                 const mainImg = document.getElementById("main-camera-img");
                 if (mainImg) {
@@ -165,7 +148,6 @@ async function fetchSystemMetrics() {
 }
 
 async function refreshDashboardData() {
-    // 1. Refresh Alerts
     const alertsList = document.getElementById("recent-alerts-list");
     if (alertsList) {
         try {
@@ -192,13 +174,11 @@ async function refreshDashboardData() {
         } catch (e) { }
     }
     
-    // 2. Trigger Search Box refresh if present to update Gallery
     const searchBox = document.getElementById("search-box");
     if (searchBox) {
         searchBox.dispatchEvent(new KeyboardEvent('keyup'));
     }
     
-    // 3. Refresh Analytics
     loadAnalyticsChart();
 }
 
@@ -255,7 +235,6 @@ async function loadAnalyticsChart() {
     } catch (e) { }
 }
 
-// Camera Selector Logic
 const camSelect = document.getElementById("camera-select");
 if (camSelect) {
     camSelect.addEventListener("change", (e) => {
@@ -278,7 +257,6 @@ if (camSelect) {
     });
 }
 
-// Search Logic for Gallery
 const searchBox = document.getElementById("search-box");
 if (searchBox) {
     searchBox.addEventListener("keyup", async () => {
@@ -313,7 +291,6 @@ if (searchBox) {
     });
 }
 
-// Initialize
 setInterval(updateLiveStatus, 1000);
 setInterval(fetchSystemMetrics, 2000);
 updateLiveStatus();

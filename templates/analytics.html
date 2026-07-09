@@ -1,12 +1,9 @@
 {% extends "base.html" %}
 {% set active_page = "analytics" %}
-
 {% block title %}Analytics{% endblock %}
 {% block header_title %}Security Analytics{% endblock %}
 
 {% block content %}
-
-<!-- Summary cards -->
 <section class="cards">
     <div class="card glass-card">
         <div class="card-header">
@@ -15,7 +12,6 @@
         </div>
         <h2>{{ total_events }}</h2>
     </div>
-
     <div class="card glass-card">
         <div class="card-header">
             <h3>People Detected</h3>
@@ -23,7 +19,6 @@
         </div>
         <h2>{{ people_detected }}</h2>
     </div>
-
     <div class="card glass-card">
         <div class="card-header">
             <h3>Threat Level</h3>
@@ -31,7 +26,6 @@
         </div>
         <h2>{{ threat_level }}</h2>
     </div>
-
     <div class="card glass-card">
         <div class="card-header">
             <h3>Camera Status</h3>
@@ -39,7 +33,6 @@
         </div>
         <h2>{{ camera_status }}</h2>
     </div>
-
     <div class="card glass-card">
         <div class="card-header">
             <h3>Unique Visitors</h3>
@@ -47,7 +40,6 @@
         </div>
         <h2>{{ unique_visitors }}</h2>
     </div>
-
     <div class="card glass-card">
         <div class="card-header">
             <h3>Max Simultaneous</h3>
@@ -55,7 +47,6 @@
         </div>
         <h2>{{ max_simultaneous }}</h2>
     </div>
-
     <div class="card glass-card">
         <div class="card-header">
             <h3>Avg Dwell Time</h3>
@@ -63,7 +54,6 @@
         </div>
         <h2>{{ avg_dwell }}s</h2>
     </div>
-
     <div class="card glass-card">
         <div class="card-header">
             <h3>Loitering Events</h3>
@@ -73,12 +63,10 @@
     </div>
 </section>
 
-<!-- Charts -->
 <section class="gallery">
     <div class="section-header glass-card" style="margin-bottom: 20px;">
         <h2>Security Trends & Intelligence</h2>
     </div>
-
     <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:20px;">
         <div class="glass-card" style="padding: 20px;">
             <h3 style="margin-bottom: 15px; font-size: 15px; font-weight: 500;">Daily Alerts</h3>
@@ -86,21 +74,18 @@
                 <canvas id="dailyAlertsChart"></canvas>
             </div>
         </div>
-
         <div class="glass-card" style="padding: 20px;">
             <h3 style="margin-bottom: 15px; font-size: 15px; font-weight: 500;">Weekly Alerts</h3>
             <div class="chart-container" style="height:280px;">
                 <canvas id="weeklyAlertsChart"></canvas>
             </div>
         </div>
-
         <div class="glass-card" style="padding: 20px;">
             <h3 style="margin-bottom: 15px; font-size: 15px; font-weight: 500;">Monthly Alerts</h3>
             <div class="chart-container" style="height:280px;">
                 <canvas id="monthlyAlertsChart"></canvas>
             </div>
         </div>
-
         <div class="glass-card" style="padding: 20px;">
             <h3 style="margin-bottom: 15px; font-size: 15px; font-weight: 500;">Event Type Distribution</h3>
             <div class="chart-container" style="height:280px;">
@@ -109,7 +94,6 @@
         </div>
     </div>
 </section>
-
 {% endblock %}
 
 {% block scripts %}
@@ -127,26 +111,16 @@
     const commonOptions = {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-            legend: { labels: { color: "#f8fafc" } }
-        },
+        plugins: { legend: { labels: { color: "#f8fafc" } } },
         scales: {
-            y: {
-                beginAtZero: true,
-                grid: { color: "rgba(255,255,255,0.05)" },
-                ticks: { color: "#94a3b8" }
-            },
-            x: {
-                grid: { color: "rgba(255,255,255,0.05)" },
-                ticks: { color: "#94a3b8" }
-            }
+            y: { beginAtZero: true, grid: { color: "rgba(255,255,255,0.05)" }, ticks: { color: "#94a3b8" } },
+            x: { grid: { color: "rgba(255,255,255,0.05)" }, ticks: { color: "#94a3b8" } }
         }
     };
 
     function buildBarChart(canvasId, chartLabels, chartValues, chartLabel) {
         const canvasElement = document.getElementById(canvasId);
         if (!canvasElement) return;
-
         new Chart(canvasElement, {
             type: "bar",
             data: {
@@ -167,7 +141,6 @@
     function buildDoughnutChart(canvasId, chartLabels, chartValues, chartLabel) {
         const canvasElement = document.getElementById(canvasId);
         if (!canvasElement) return;
-
         new Chart(canvasElement, {
             type: "doughnut",
             data: {
@@ -188,9 +161,7 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { labels: { color: "#f8fafc" }, position: 'bottom' }
-                }
+                plugins: { legend: { labels: { color: "#f8fafc" }, position: 'bottom' } }
             }
         });
     }

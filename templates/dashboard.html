@@ -1,12 +1,9 @@
 {% extends "base.html" %}
 {% set active_page = "dashboard" %}
-
 {% block title %}Dashboard{% endblock %}
 {% block header_title %}Overview Dashboard{% endblock %}
 
 {% block content %}
-
-<!-- Summary cards at the top of the dashboard. -->
 <section class="cards">
     <div class="card glass-card">
         <div class="card-header">
@@ -16,7 +13,6 @@
         <h2 id="total-events">{{ total_events }}</h2>
         <small class="trend positive"><i data-lucide="trending-up"></i> Live Tracking</small>
     </div>
-
     <div class="card glass-card">
         <div class="card-header">
             <h3>Threat Level</h3>
@@ -25,7 +21,6 @@
         <h2 id="threat-level" class="text-success">SAFE</h2>
         <small class="trend">Monitoring 24/7</small>
     </div>
-
     <div class="card glass-card">
         <div class="card-header">
             <h3>People Detected</h3>
@@ -34,7 +29,6 @@
         <h2 id="people-count">0</h2>
         <small class="trend">Unique active tracked persons</small>
     </div>
-
     <div class="card glass-card">
         <div class="card-header">
             <h3>Camera Status</h3>
@@ -45,7 +39,6 @@
     </div>
 </section>
 
-<!-- System Status & Metrics (New Section) -->
 <section class="system-health">
     <div class="metrics-panel glass-card">
         <h3>System Metrics</h3>
@@ -72,7 +65,6 @@
             </div>
         </div>
     </div>
-    
     <div class="status-panel glass-card">
         <h3>Service Health</h3>
         <div class="status-grid">
@@ -86,9 +78,7 @@
     </div>
 </section>
 
-<!-- Main content area with live view and alerts. -->
 <section class="content split-view">
-
     <div class="camera-section glass-card">
         <div class="section-header">
             <h2>Live Monitoring</h2>
@@ -101,7 +91,6 @@
                 </select>
             </div>
         </div>
-
         <div class="camera-box" id="camera-box-container">
             <div class="camera-overlay">
                 <div class="overlay-top">
@@ -120,13 +109,11 @@
             </div>
         </div>
     </div>
-
     <div class="alerts-section glass-card">
         <div class="section-header">
             <h2>Recent Alerts</h2>
             <a href="/alerts" class="view-all">View All</a>
         </div>
-        
         <div class="alerts-list" id="recent-alerts-list">
             {% for event in events[:6] %}
             <div class="alert-item severity-high">
@@ -146,10 +133,8 @@
             {% endif %}
         </div>
     </div>
-
 </section>
 
-<!-- Search Section -->
 <section class="search-section glass-card" style="padding: 15px 20px;">
     <div class="search-wrapper">
         <i data-lucide="search" class="search-icon"></i>
@@ -157,13 +142,11 @@
     </div>
 </section>
 
-<!-- Evidence Gallery -->
 <section class="gallery glass-card">
     <div class="section-header">
         <h2>Evidence Gallery</h2>
         <a href="/evidence" class="btn-primary-outline"><i data-lucide="folder-open"></i> Full Archive</a>
     </div>
-
     <div class="gallery-grid" id="gallery-grid">
         {% for event in events[:8] %}
         <div class="evidence-card">
@@ -189,7 +172,6 @@
         {% endif %}
     </div>
 </section>
-
 {% endblock %}
 
 {% block scripts %}

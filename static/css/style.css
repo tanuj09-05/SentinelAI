@@ -1,8 +1,3 @@
-
-/*
-  Theme colors used across the landing page.
-  Keeping these here makes it easier to adjust the look later.
-*/
 :root {
     --bg: #050816;
     --bg2: #0f172a;
@@ -12,9 +7,6 @@
     --muted: #94a3b8;
 }
 
-/*
-  Reset browser defaults and use a consistent font.
-*/
 * {
     margin: 0;
     padding: 0;
@@ -22,25 +14,16 @@
     font-family: 'Inter', sans-serif;
 }
 
-/*
-  Smooth scrolling makes navigation links feel nicer.
-*/
 html {
     scroll-behavior: smooth;
 }
 
-/*
-  Base page background and text color.
-*/
 body {
     background: radial-gradient(circle at top, #111827 0%, #050816 55%, #020617 100%);
     color: var(--text);
     overflow-x: hidden;
 }
 
-/*
-  This pseudo-element creates the animated glowing background.
-*/
 body::before {
     content: "";
     position: fixed;
@@ -58,15 +41,11 @@ body::before {
     from {
         transform: translate(-40px, -20px) scale(1);
     }
-
     to {
         transform: translate(40px, 30px) scale(1.15);
     }
 }
 
-/*
-  Fixed top navigation bar.
-*/
 .navbar {
     position: fixed;
     top: 0;
@@ -109,10 +88,6 @@ nav a:hover {
     border-radius: 999px;
 }
 
-/*
-  Hero section layout.
-  The page is split into text on the left and a visual card on the right.
-*/
 .hero {
     min-height: 100vh;
     display: grid;
@@ -145,9 +120,6 @@ nav a:hover {
     font-size: 1.1rem;
 }
 
-/*
-  Button row under the hero text.
-*/
 .buttons {
     display: flex;
     gap: 18px;
@@ -178,9 +150,6 @@ nav a:hover {
     color: white;
 }
 
-/*
-  Glass-style information card on the right side of the hero.
-*/
 .glass-card {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(20px);
@@ -210,9 +179,6 @@ nav a:hover {
     color: white;
 }
 
-/*
-  Main content sections below the hero.
-*/
 .section {
     padding: 100px 7%;
 }
@@ -228,9 +194,6 @@ nav a:hover {
     line-height: 1.8;
 }
 
-/*
-  Grid of feature cards.
-*/
 .feature-grid {
     margin-top: 50px;
     display: grid;
@@ -259,9 +222,6 @@ nav a:hover {
     color: var(--muted);
 }
 
-/*
-  Small pill-like tags for the technology stack.
-*/
 .stack {
     display: flex;
     flex-wrap: wrap;
@@ -282,19 +242,14 @@ footer {
     color: var(--muted);
 }
 
-/*
-  Responsive layout for tablets and phones.
-*/
 @media (max-width: 900px) {
     .hero {
         grid-template-columns: 1fr;
         text-align: center;
     }
-
     nav {
         display: none;
     }
-
     .buttons {
         justify-content: center;
     }

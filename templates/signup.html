@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,190 +8,38 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .signup-container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 400px;
-            padding: 40px;
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .logo h1 {
-            font-size: 28px;
-            color: #2c3e50;
-            margin-bottom: 5px;
-        }
-
-        .logo p {
-            color: #7f8c8d;
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #2c3e50;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px 42px 12px 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="password"]:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-        }
-
-        .signup-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .signup-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .login-link {
-            text-align: center;
-            margin-top: 20px;
-            color: #7f8c8d;
-            font-size: 14px;
-        }
-
-        .login-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-
-        .error-message {
-            background-color: #fee;
-            color: #c33;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #c33;
-            font-size: 14px;
-        }
-
-        .success-message {
-            background-color: #efe;
-            color: #3a3;
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border-left: 4px solid #3a3;
-            font-size: 14px;
-        }
-
-        .messages {
-            margin-bottom: 20px;
-        }
-
-        /* Password visibility toggle */
-        .password-wrapper {
-            position: relative;
-        }
-
-        .password-wrapper input {
-            padding-right: 44px;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
-            color: #999;
-            display: flex;
-            align-items: center;
-            transition: color 0.2s;
-        }
-
-        .toggle-password:hover {
-            color: #667eea;
-        }
-
-        .toggle-password svg {
-            width: 18px;
-            height: 18px;
-            display: block;
-            transition: opacity 0.2s;
-        }
-
-        .toggle-password .icon-eye-slash {
-            display: none;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #333; }
+        .signup-container { background: white; border-radius: 12px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); width: 100%; max-width: 400px; padding: 40px; }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo h1 { font-size: 28px; color: #2c3e50; margin-bottom: 5px; }
+        .logo p { color: #7f8c8d; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; color: #2c3e50; font-weight: 500; font-size: 14px; }
+        input[type="text"], input[type="email"], input[type="password"] { width: 100%; padding: 12px 42px 12px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; transition: border-color 0.3s; }
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus { outline: none; border-color: #3498db; box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1); }
+        .signup-btn { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .signup-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3); }
+        .login-link { text-align: center; margin-top: 20px; color: #7f8c8d; font-size: 14px; }
+        .login-link a { color: #667eea; text-decoration: none; font-weight: 600; }
+        .login-link a:hover { text-decoration: underline; }
+        .error-message { background-color: #fee; color: #c33; padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c33; font-size: 14px; }
+        .success-message { background-color: #efe; color: #3a3; padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #3a3; font-size: 14px; }
+        .messages { margin-bottom: 20px; }
+        .password-wrapper { position: relative; }
+        .password-wrapper input { padding-right: 44px; }
+        .toggle-password { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; color: #999; display: flex; align-items: center; transition: color 0.2s; }
+        .toggle-password:hover { color: #667eea; }
+        .toggle-password svg { width: 18px; height: 18px; display: block; transition: opacity 0.2s; }
+        .toggle-password .icon-eye-slash { display: none; }
     </style>
 </head>
-
 <body>
-
     <div class="signup-container">
-
         <div class="logo">
             <h1>SENTINELAI</h1>
             <p>Create Your Account</p>
         </div>
-
         <div class="messages">
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -206,88 +53,61 @@
                 {% endif %}
             {% endwith %}
         </div>
-
         <form method="POST">
-
             <div class="form-group">
                 <label for="name">Full Name</label>
                 <input type="text" id="name" name="name" required>
             </div>
-
             <div class="form-group">
                 <label for="email">Email Address</label>
                 <input type="email" id="email" name="email" required>
             </div>
-
             <div class="form-group">
                 <label for="password">Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="password" name="password" required>
                     <button type="button" class="toggle-password" aria-label="Show password" data-target="password">
                         <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                         </svg>
                         <svg class="icon-eye-slash" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                            <line x1="1" y1="1" x2="23" y2="23"/>
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
                         </svg>
                     </button>
                 </div>
             </div>
-
             <div class="form-group">
                 <label for="confirm_password">Confirm Password</label>
                 <div class="password-wrapper">
                     <input type="password" id="confirm_password" name="confirm_password" required>
                     <button type="button" class="toggle-password" aria-label="Show password" data-target="confirm_password">
                         <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                            <circle cx="12" cy="12" r="3"/>
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
                         </svg>
                         <svg class="icon-eye-slash" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-                            <line x1="1" y1="1" x2="23" y2="23"/>
+                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>
                         </svg>
                     </button>
                 </div>
             </div>
-
             <button type="submit" class="signup-btn">Create Account</button>
-
         </form>
-
         <div class="login-link">
             Already have an account? <a href="{{ url_for('auth.login') }}">Sign in here</a>
         </div>
-
     </div>
-
 </body>
-
 <script>
-(function () {
-    document.querySelectorAll('.toggle-password').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var targetId = btn.getAttribute('data-target');
-            var input = document.getElementById(targetId);
-            var iconEye = btn.querySelector('.icon-eye');
-            var iconEyeSlash = btn.querySelector('.icon-eye-slash');
-
-            if (input.type === 'password') {
-                input.type = 'text';
-                iconEye.style.display = 'none';
-                iconEyeSlash.style.display = 'block';
-                btn.setAttribute('aria-label', 'Hide password');
-            } else {
-                input.type = 'password';
-                iconEye.style.display = 'block';
-                iconEyeSlash.style.display = 'none';
-                btn.setAttribute('aria-label', 'Show password');
-            }
+    document.querySelectorAll('.toggle-password').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const input = document.getElementById(btn.getAttribute('data-target'));
+            const show = input.type === 'password';
+            
+            input.type = show ? 'text' : 'password';
+            btn.querySelector('.icon-eye').style.display = show ? 'none' : 'block';
+            btn.querySelector('.icon-eye-slash').style.display = show ? 'block' : 'none';
+            btn.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
         });
     });
-}());
 </script>
-
 </html>

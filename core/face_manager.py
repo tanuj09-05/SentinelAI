@@ -1,28 +1,21 @@
 import os
 import sqlite3
 import numpy as np
-
 from datetime import datetime
 
-# Optional: Disable insightface model download logging
 os.environ["MXNET_CUDNN_AUTOTUNE_DEFAULT"] = "0"
 import warnings
-
 warnings.filterwarnings("ignore")
 
 from insightface.app import FaceAnalysis
 from config import DATABASE_PATH
 
-
 class FaceManager:
     def __init__(self):
         print("[INFO] Initializing InsightFace model...")
         self.app = FaceAnalysis(name="buffalo_l")
-        # We can use cpu or gpu. Det size can be smaller for speed
         self.app.prepare(ctx_id=0, det_size=(640, 640))
-        self.known_faces = (
-            {}
-        )  # dict of user_id -> { id: { 'name': name, 'embedding': np.array } }
+        self.known_faces = {}
         self.load_database()
         print("[INFO] InsightFace model initialized successfully.")
 
@@ -35,8 +28,10 @@ class FaceManager:
                 for row in cursor.fetchall():
                     face_id, user_id, name, embedding_blob = row
                     embedding = np.frombuffer(embedding_blob, dtype=np.float32)
+                    
                     if user_id not in self.known_faces:
                         self.known_faces[user_id] = {}
+                        
                     self.known_faces[user_id][face_id] = {
                         "name": name,
                         "embedding": embedding,
@@ -49,10 +44,7 @@ class FaceManager:
         if not faces:
             return False, "No face detected in the image."
 
-        # Take the largest face
-        face = max(
-            faces, key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1])
-        )
+        face = max(faces, key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
         embedding = face.embedding
 
         try:
@@ -72,13 +64,9 @@ class FaceManager:
 
     def match_face(self, user_id, frame, crop_box=None):
         if crop_box is not None:
-            # Crop the person from the frame to speed up and isolate
             x1, y1, x2, y2 = map(int, crop_box)
-            # Ensure bounds
-            x1 = max(0, x1)
-            y1 = max(0, y1)
-            x2 = min(frame.shape[1], x2)
-            y2 = min(frame.shape[0], y2)
+            x1, y1 = max(0, x1), max(0, y1)
+            x2, y2 = min(frame.shape[1], x2), min(frame.shape[0], y2)
 
             if x2 <= x1 or y2 <= y1:
                 return None, 0.0
@@ -86,6 +74,7 @@ class FaceManager:
             person_crop = frame[y1:y2, x1:x2]
             if person_crop.size == 0:
                 return None, 0.0
+                
             faces = self.app.get(person_crop)
         else:
             faces = self.app.get(frame)
@@ -93,13 +82,8 @@ class FaceManager:
         if not faces:
             return None, 0.0
 
-        # Get the largest face in the crop
-        face = max(
-            faces, key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1])
-        )
-        query_emb = face.embedding
-
-        return self._match_embedding(user_id, query_emb)
+        face = max(faces, key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]))
+        return self._match_embedding(user_id, face.embedding)
 
     def _match_embedding(self, user_id, query_emb, threshold=0.5):
         if user_id not in self.known_faces or not self.known_faces[user_id]:
@@ -107,15 +91,15 @@ class FaceManager:
 
         best_match = None
         best_sim = -1.0
-
-        # Calculate cosine similarity
         norm_query = np.linalg.norm(query_emb)
+        
         if norm_query == 0:
             return None, 0.0
 
         for face_id, data in self.known_faces[user_id].items():
             db_emb = data["embedding"]
             norm_db = np.linalg.norm(db_emb)
+            
             if norm_db == 0:
                 continue
 
@@ -126,12 +110,10 @@ class FaceManager:
 
         if best_sim > threshold:
             return best_match, float(best_sim)
+            
         return None, float(best_sim)
 
-
-# Global singleton instance
 _face_manager_instance = None
-
 
 def get_face_manager():
     global _face_manager_instance
